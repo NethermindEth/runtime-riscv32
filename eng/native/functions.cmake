@@ -169,6 +169,10 @@ function(find_unwind_libs UnwindLibs)
       find_library(UNWIND_ARCH NAMES unwind-loongarch64)
     endif()
 
+    if(CLR_CMAKE_HOST_ARCH_RISCV32)
+      find_library(UNWIND_ARCH NAMES unwind-riscv32)
+    endif()
+
     if(CLR_CMAKE_HOST_ARCH_RISCV64)
       find_library(UNWIND_ARCH NAMES unwind-riscv64)
     endif()

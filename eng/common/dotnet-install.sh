@@ -71,6 +71,9 @@ case $cpuname in
   i[3-6]86)
     buildarch=x86
     ;;
+  riscv32)
+    buildarch=riscv32
+    ;;
   riscv64)
     buildarch=riscv64
     ;;

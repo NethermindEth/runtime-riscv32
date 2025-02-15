@@ -156,7 +156,7 @@ fetch_tizen_pkgs()
     done
 }
 
-if [ "$TIZEN_ARCH" == "riscv64" ]; then
+if [ "$TIZEN_ARCH" == "riscv64" ] || [ "$TIZEN_ARCH" == "riscv32" ] ; then
     BASE="Tizen-Base-RISCV"
     UNIFIED="Tizen-Unified-RISCV"
 else
@@ -170,7 +170,7 @@ Inform "fetch common packages"
 fetch_tizen_pkgs ${TIZEN_ARCH} gcc gcc-devel-static glibc glibc-devel libicu libicu-devel libatomic linux-glibc-devel keyutils keyutils-devel libkeyutils
 Inform "fetch coreclr packages"
 fetch_tizen_pkgs ${TIZEN_ARCH} libgcc libstdc++ libstdc++-devel libunwind libunwind-devel lttng-ust-devel lttng-ust userspace-rcu-devel userspace-rcu
-if [ "$TIZEN_ARCH" != "riscv64" ]; then
+if [ "$TIZEN_ARCH" != "riscv64" ] && [ "$TIZEN_ARCH" != "riscv32" ]; then
     fetch_tizen_pkgs ${TIZEN_ARCH} lldb lldb-devel
 fi
 Inform "fetch corefx packages"

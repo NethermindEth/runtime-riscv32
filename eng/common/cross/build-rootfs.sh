@@ -5,7 +5,7 @@ set -e
 usage()
 {
     echo "Usage: $0 [BuildArch] [CodeName] [lldbx.y] [llvmx[.y]] [--skipunmount] --rootfsdir <directory>]"
-    echo "BuildArch can be: arm(default), arm64, armel, armv6, loongarch64, ppc64le, riscv64, s390x, x64, x86"
+    echo "BuildArch can be: arm(default), arm64, armel, armv6, loongarch64, ppc64le, riscv32, riscv64, s390x, x64, x86"
     echo "CodeName - optional, Code name for Linux, can be: xenial(default), zesty, bionic, alpine"
     echo "                               for alpine can be specified with version: alpineX.YY or alpineedge"
     echo "                               for FreeBSD can be: freebsd13, freebsd14"
@@ -194,6 +194,15 @@ while :; do
                 __UbuntuRepo="http://ftp.ports.debian.org/debian-ports/"
             fi
             ;;
+        riscv32)
+            __BuildArch=riscv32
+            __AlpineArch=riscv32
+            __AlpinePackages="${__AlpinePackages// lldb-dev/}"
+            __QEMUArch=riscv32
+            __UbuntuArch=riscv32
+            __UbuntuPackages="${__UbuntuPackages// libunwind8-dev/}"
+            unset __LLDB_Package
+            ;;
         riscv64)
             __BuildArch=riscv64
             __AlpineArch=riscv64
@@ -358,7 +367,7 @@ while :; do
 
             # Debian-Ports architectures need different values
             case "$__UbuntuArch" in
-            amd64|arm64|armel|armhf|i386|mips64el|ppc64el|riscv64|s390x)
+            amd64|arm64|armel|armhf|i386|mips64el|ppc64el|riscv32|riscv64|s390x)
                 __KeyringFile="/usr/share/keyrings/debian-archive-keyring.gpg"
 
                 if [[ -z "$__UbuntuRepo" ]]; then
@@ -455,7 +464,7 @@ case "$__AlpineVersion" in
         elif [[ "$__AlpineArch" == "x86" ]]; then
             __AlpineVersion=3.17 # minimum version that supports lldb-dev
             __AlpinePackages+=" llvm15-libs"
-        elif [[ "$__AlpineArch" == "riscv64" || "$__AlpineArch" == "loongarch64" ]]; then
+        elif [[ "$__AlpineArch" == "riscv64" || "$__AlpineArch" == "riscv32" || "$__AlpineArch" == "loongarch64" ]]; then
             __AlpineVersion=3.21 # minimum version that supports lldb-dev
             __AlpinePackages+=" llvm19-libs"
         elif [[ -n "$__AlpineMajorVersion" ]]; then

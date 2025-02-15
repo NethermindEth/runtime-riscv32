@@ -97,6 +97,11 @@ extends:
         env:
           ROOTFS_DIR: /crossrootfs/ppc64le
 
+      linux_riscv32:
+        image: mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-riscv32
+        env:
+          ROOTFS_DIR: /crossrootfs/riscv32
+
       linux_riscv64:
         image: mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-riscv64
         env:
