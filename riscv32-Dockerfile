@@ -1,0 +1,7 @@
+FROM ubuntu:24.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG HOME_PATH="/"
+
+RUN apt-get update
+RUN apt-get install -y debootstrap build-essential gettext locales cmake llvm clang lld lldb liblldb-dev libunwind8-dev libicu-dev liblttng-ust-dev libssl-dev libkrb5-dev pigz cpio
