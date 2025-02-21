@@ -177,8 +177,26 @@ dwarf_getfp (struct dwarf_cursor *c, dwarf_loc_t loc, unw_fpreg_t *val)
 #if __riscv_xlen == __riscv_flen
   return (*c->as->acc.access_mem) (c->as, addr, (unw_word_t *) valp,
                                        0, c->as_arg);
-#else
-# error "FIXME"
+#elif __riscv_xlen < __riscv_flen
+  int r;
+  for (int i = 0; i < __riscv_flen / __riscv_xlen; ++i)
+  {
+    unw_word_t w;
+    r = (*c->as->acc.access_mem) (c->as, addr + sizeof(unw_word_t) * i,
+                                  ((unw_word_t *)valp) + i, 0, c->as_arg);
+    if (r != 0)
+      return r;
+  }
+  return 0;
+#elif __riscv_xlen > __riscv_flen
+  unw_word_t w;
+  int r;
+  r = (*c->as->acc.access_mem) (c->as, addr, &w, 0, c->as_arg);
+  if (r == 0)
+  {
+    memcpy(valp, &w, sizeof(unw_fpreg_t));
+  }
+  return r;
 #endif
 }
 
@@ -200,8 +218,29 @@ dwarf_putfp (struct dwarf_cursor *c, dwarf_loc_t loc, unw_fpreg_t val)
 #if __riscv_xlen == __riscv_flen
   return (*c->as->acc.access_mem) (c->as, addr, (unw_word_t *) valp,
                                        1, c->as_arg);
-#else
-# error "FIXME"
+#elif __riscv_xlen < __riscv_flen
+  int r;
+  for (int i = 0; i < __riscv_flen / __riscv_xlen; ++i)
+  {
+    unw_word_t w;
+    r = (*c->as->acc.access_mem) (c->as, addr + sizeof(unw_word_t) * i,
+                                  ((unw_word_t *)valp) + i, 1, c->as_arg);
+    if (r != 0)
+      return r;
+  }
+  return 0;
+#elif __riscv_xlen > __riscv_flen
+  int r;
+  unw_word_t w = 0;
+
+  /* read word, patch it, write back */
+  r = (*c->as->acc.access_mem) (c->as, addr, &w, 0, c->as_arg);
+  if (r != 0)
+    return r;
+
+  memcpy(&w, &val, sizeof(unw_word_t));
+
+  return (*c->as->acc.access_mem) (c->as, addr, &w, 1, c->as_arg);
 #endif
 }
 
