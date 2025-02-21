@@ -56,6 +56,8 @@
 #define DTCONTEXT_IS_ARM64
 #elif defined (TARGET_LOONGARCH64)
 #define DTCONTEXT_IS_LOONGARCH64
+#elif defined (TARGET_RISCV32)
+#define DTCONTEXT_IS_RISCV32
 #elif defined (TARGET_RISCV64)
 #define DTCONTEXT_IS_RISCV64
 #endif
@@ -609,6 +611,74 @@ typedef struct DECLSPEC_ALIGN(16) {
     // Floating Point Registers
     //
     ULONGLONG F[32];
+    DWORD Fcsr;
+} DT_CONTEXT;
+
+static_assert(sizeof(DT_CONTEXT) == sizeof(T_CONTEXT), "DT_CONTEXT size must equal the T_CONTEXT size");
+
+#elif defined(DTCONTEXT_IS_RISCV32)
+
+#define DT_CONTEXT_RISCV32 0x02000000L
+
+#define DT_CONTEXT_CONTROL         (DT_CONTEXT_RISCV32 | 0x1L)
+#define DT_CONTEXT_INTEGER         (DT_CONTEXT_RISCV32 | 0x2L)
+#define DT_CONTEXT_FLOATING_POINT  (DT_CONTEXT_RISCV32 | 0x4L)
+#define DT_CONTEXT_DEBUG_REGISTERS (DT_CONTEXT_RISCV32 | 0x8L)
+
+#define DT_CONTEXT_FULL (DT_CONTEXT_CONTROL | DT_CONTEXT_INTEGER | DT_CONTEXT_FLOATING_POINT)
+#define DT_CONTEXT_ALL (DT_CONTEXT_CONTROL | DT_CONTEXT_INTEGER | DT_CONTEXT_FLOATING_POINT | DT_CONTEXT_DEBUG_REGISTERS)
+
+#define DT_RISCV32_MAX_BREAKPOINTS     8
+#define DT_RISCV32_MAX_WATCHPOINTS     2
+
+typedef struct DECLSPEC_ALIGN(16) {
+    //
+    // Control flags.
+    //
+
+    /* +0x000 */ DWORD ContextFlags;
+
+    //
+    // Integer registers
+    //
+    DWORD R0;
+    DWORD Ra;
+    DWORD Sp;
+    DWORD Gp;
+    DWORD Tp;
+    DWORD T0;
+    DWORD T1;
+    DWORD T2;
+    DWORD Fp;
+    DWORD S1;
+    DWORD A0;
+    DWORD A1;
+    DWORD A2;
+    DWORD A3;
+    DWORD A4;
+    DWORD A5;
+    DWORD A6;
+    DWORD A7;
+    DWORD S2;
+    DWORD S3;
+    DWORD S4;
+    DWORD S5;
+    DWORD S6;
+    DWORD S7;
+    DWORD S8;
+    DWORD S9;
+    DWORD S10;
+    DWORD S11;
+    DWORD T3;
+    DWORD T4;
+    DWORD T5;
+    DWORD T6;
+    DWORD Pc;
+
+    //
+    // Floating Point Registers
+    //
+    ULONG F[32];
     DWORD Fcsr;
 } DT_CONTEXT;
 

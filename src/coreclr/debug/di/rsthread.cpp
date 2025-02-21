@@ -9003,6 +9003,9 @@ HRESULT CordbJITILFrame::GetReturnValueForType(CordbType *pType, ICorDebugValue 
     const CorDebugRegister ptrHighWordRegister = REGISTER_ARM_R1;
 #elif  defined(TARGET_LOONGARCH64)
     const CorDebugRegister ptrRegister = REGISTER_LOONGARCH64_A0;
+#elif  defined(TARGET_RISCV32)
+    const CorDebugRegister ptrRegister = REGISTER_RISCV32_R0;
+    const CorDebugRegister ptrHighWordRegister = REGISTER_RISCV32_R1;
 #elif  defined(TARGET_RISCV64)
     const CorDebugRegister ptrRegister = REGISTER_RISCV64_A0;
 #endif
