@@ -125,6 +125,20 @@
 #define NOT_LOONGARCH64_ARG(x)    , x
 #endif
 
+#ifdef TARGET_RISCV32
+#define RISCV32_FIRST_ARG(x)  x ,
+#define RISCV32_ARG(x)        , x
+#define RISCV32_ONLY(x)       x
+#define NOT_RISCV32(x)
+#define NOT_RISCV32_ARG(x)
+#else
+#define RISCV32_FIRST_ARG(x)
+#define RISCV32_ARG(x)
+#define RISCV32_ONLY(x)
+#define NOT_RISCV32(x)        x
+#define NOT_RISCV32_ARG(x)    , x
+#endif
+
 #ifdef TARGET_RISCV64
 #define RISCV64_FIRST_ARG(x)  x ,
 #define RISCV64_ARG(x)        , x
@@ -159,9 +173,9 @@
     #define DBG_ADDR(ptr)      (DWORD)((UINT_PTR)(ptr))
 #endif // HOST_64BIT
 
-#if defined(HOST_ARM) || defined(HOST_RISCV64)
+#if defined(HOST_ARM) || defined(HOST_RISCV64) || defined(HOST_RISCV32)
     #define ALIGN_ACCESS        ((1<<LOG2_PTRSIZE)-1)
-#endif // HOST_ARM || HOST_RISCV64
+#endif // HOST_ARM || HOST_RISCV64 || HOST_RISCV32
 
 
 #ifndef ALLOC_ALIGN_CONSTANT
