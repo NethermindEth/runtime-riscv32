@@ -61,6 +61,7 @@ namespace ILCompiler.ObjectWriter
                 TargetArchitecture.ARM64 => EM_AARCH64,
                 TargetArchitecture.LoongArch64 => EM_LOONGARCH,
                 TargetArchitecture.RiscV64 => EM_RISCV,
+                TargetArchitecture.RiscV32 => EM_RISCV,
                 _ => throw new NotSupportedException("Unsupported architecture")
             };
             _useInlineRelocationAddends = _machine is EM_386 or EM_ARM;

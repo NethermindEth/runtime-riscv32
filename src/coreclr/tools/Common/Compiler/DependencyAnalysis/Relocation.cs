@@ -20,6 +20,7 @@ namespace ILCompiler.DependencyAnalysis
         IMAGE_REL_BASED_LOONGARCH64_PC       = 0x16,   // LoongArch64: pcalau12i+imm12
         IMAGE_REL_BASED_LOONGARCH64_JIR      = 0x17,   // LoongArch64: pcaddu18i+jirl
         IMAGE_REL_BASED_RISCV64_PC           = 0x18,   // RiscV64: auipc
+        // TODO
         IMAGE_REL_BASED_RELPTR32             = 0x7C,   // 32-bit relative address from byte starting reloc
                                                        // This is a special NGEN-specific relocation type
                                                        // for relative pointer (used to make NGen relocation
@@ -548,6 +549,7 @@ namespace ILCompiler.DependencyAnalysis
                 case RelocType.IMAGE_REL_BASED_RISCV64_PC:
                     PutRiscV64PC((uint*)location, value);
                     break;
+                // TODO
                 default:
                     Debug.Fail("Invalid RelocType: " + relocType);
                     break;
@@ -615,6 +617,7 @@ namespace ILCompiler.DependencyAnalysis
                     return (long)GetLoongArch64JIR((uint*)location);
                 case RelocType.IMAGE_REL_BASED_RISCV64_PC:
                     return (long)GetRiscV64PC((uint*)location);
+                // TODO
                 default:
                     Debug.Fail("Invalid RelocType: " + relocType);
                     return 0;
