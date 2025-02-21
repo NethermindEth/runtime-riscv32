@@ -417,6 +417,27 @@ jobs:
         crossBuild: true
         ${{ insert }}: ${{ parameters.jobParameters }}
 
+# Linux RISCV32
+
+- ${{ if containsValue(parameters.platforms, 'linux_riscv32') }}:
+  - template: xplat-setup.yml
+    parameters:
+      jobTemplate: ${{ parameters.jobTemplate }}
+      helixQueuesTemplate: ${{ parameters.helixQueuesTemplate }}
+      variables: ${{ parameters.variables }}
+      osGroup: linux
+      archType: riscv32
+      targetRid: linux-riscv32
+      platform: linux_riscv32
+      shouldContinueOnError: ${{ parameters.shouldContinueOnError }}
+      container: linux_riscv32
+      jobParameters:
+        runtimeFlavor: ${{ parameters.runtimeFlavor }}
+        buildConfig: ${{ parameters.buildConfig }}
+        helixQueueGroup: ${{ parameters.helixQueueGroup }}
+        crossBuild: true
+        ${{ insert }}: ${{ parameters.jobParameters }}
+
 # Linux RISCV64
 
 - ${{ if containsValue(parameters.platforms, 'linux_riscv64') }}:
