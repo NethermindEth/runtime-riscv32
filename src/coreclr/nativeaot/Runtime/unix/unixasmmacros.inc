@@ -44,6 +44,8 @@
 #include "unixasmmacrosx86.inc"
 #elif defined(HOST_LOONGARCH64)
 #include "unixasmmacrosloongarch64.inc"
+#elif defined(HOST_RISCV32)
+#include "unixasmmacrosriscv32.inc"
 #elif defined(HOST_RISCV64)
 #include "unixasmmacrosriscv64.inc"
 #endif

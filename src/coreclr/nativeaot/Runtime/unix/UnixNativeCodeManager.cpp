@@ -373,7 +373,7 @@ bool UnixNativeCodeManager::IsUnwindable(PTR_VOID pvAddress)
     ASSERT(((uintptr_t)pvAddress & 1) == 0);
 #endif
 
-#if defined(TARGET_ARM64) || defined(TARGET_ARM) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARM64) || defined(TARGET_ARM) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64) || defined(TARGET_RISCV32)
     MethodInfo methodInfo;
     FindMethodInfo(pvAddress, &methodInfo);
     pMethodInfo = &methodInfo;
@@ -690,6 +690,60 @@ int UnixNativeCodeManager::IsInProlog(MethodInfo * pMethodInfo, PTR_VOID pvAddre
             // don't need to recognize these patterns unless a compact unwinding code
             // is generated for them in ILC.
             // https://github.com/dotnet/runtime/issues/76371
+            return -1;
+        }
+    }
+
+    return savedFp && savedRa && establishedFp ? 0 : 1;
+
+#elif defined(TARGET_RISCV32)
+
+// Store word with signed offset (SW format)
+// 0100 xxxx xxxxxxxx xxxx xxxx xxxx xxxx (example mask)
+#define SW_BITS 0x20000000
+#define SW_MASK 0xFE000000
+
+// Add immediate (addi fp, sp, imm)
+// 0001 xxxx xxxxxxxx xxxx xxxx xxxx xxxx
+#define ADDI_FP_SP_BITS 0x01000000
+#define ADDI_FP_SP_MASK 0xFF000000
+
+#define SW_RS1_MASK 0xF80
+#define SW_RS1_SP   0x000
+#define SW_RS1_FP   0xF00
+#define SW_RS2_MASK 0xF00
+#define SW_RS2_FP   0xF00
+#define SW_RS2_RA   0xF40
+
+    UnixNativeMethodInfo *pNativeMethodInfo = (UnixNativeMethodInfo *)pMethodInfo;
+    ASSERT(pNativeMethodInfo != NULL);
+
+    uint32_t *start = (uint32_t *)pNativeMethodInfo->pMethodStartAddress;
+    bool savedFp = false;
+    bool savedRa = false;
+    bool establishedFp = false;
+
+    for (uint32_t *pInstr = (uint32_t *)start; pInstr < pvAddress && !(savedFp && savedRa && establishedFp); pInstr++)
+    {
+        uint32_t instr = *pInstr;
+
+        if (((instr & SW_MASK) == SW_BITS) &&
+            ((instr & SW_RS1_MASK) == SW_RS1_SP || (instr & SW_RS1_MASK) == SW_RS1_FP) &&
+            ((instr & SW_RS2_MASK) == SW_RS2_FP || (instr & SW_RS2_MASK) == SW_RS2_RA))
+        {
+            // SP/FP-relative store of a register
+            savedFp |= (instr & SW_RS2_MASK) == SW_RS2_FP;
+            savedRa |= (instr & SW_RS2_MASK) == SW_RS2_RA;
+        }
+        else if ((instr & ADDI_FP_SP_MASK) == ADDI_FP_SP_BITS)
+        {
+            establishedFp = true;
+        }
+        else
+        {
+            // RISC-V generates other patterns into the prologue that we currently don't
+            // recognize (e.g., saving registers or adjusting stack pointers). Unless compact
+            // unwinding code is needed for these, we can safely return -1.
             return -1;
         }
     }
@@ -1183,6 +1237,55 @@ int UnixNativeCodeManager::TrailingEpilogueInstructionsCount(MethodInfo * pMetho
         }
     }
 
+#elif defined(TARGET_RISCV32)
+
+// Load upper immediate (LUI)
+// 0110111 opcode for LUI
+#define LUI_BITS 0x00000037
+#define LUI_MASK 0x0000007F
+
+// Load with register offset (LW)
+// 0000011 opcode for LW
+#define LW_BITS 0x00000003
+#define LW_MASK 0x0000007F
+
+// Branches, Jumps, System calls
+// BEQ, BNE, JAL, etc.
+// 1100011 opcode for branches
+#define BEGS_BITS 0x00000063
+#define BEGS_MASK 0x0000007F
+
+    UnixNativeMethodInfo *pNativeMethodInfo = (UnixNativeMethodInfo *)pMethodInfo;
+    ASSERT(pNativeMethodInfo != NULL);
+
+    uint32_t *start = (uint32_t *)pNativeMethodInfo->pMethodStartAddress;
+
+    // Limit the search roughly by the containing basic block.
+    // Typically examine 1-5 instructions; rarely up to 30.
+    for (uint32_t *pInstr = (uint32_t *)pvAddress - 1; pInstr > start; pInstr--)
+    {
+        uint32_t instr = *pInstr;
+
+        // Check for branches, jumps, or system calls.
+        // If such instructions are seen before registers are restored, we are not in an epilogue.
+        // Includes RET, branches, jumps, and system calls.
+        if ((instr & BEGS_MASK) == BEGS_BITS)
+        {
+            // Not in an epilogue
+            break;
+        }
+
+        // Check for restoring registers (FP or RA) with `lw`
+        int rd = (instr >> 7) & 0x1F;  // Extract the destination register
+        if (rd == 8 || rd == 1)  // Check for FP (x8) or RA (x1)
+        {
+            if ((instr & LW_MASK) == LW_BITS)  // Match `lw` instruction
+            {
+                return -1;
+            }
+        }
+    }
+
 #elif defined(TARGET_RISCV64)
 
 // Load with immediate
@@ -1318,7 +1421,7 @@ bool UnixNativeCodeManager::GetReturnAddressHijackInfo(MethodInfo *    pMethodIn
     *ppvRetAddrLocation = (PTR_PTR_VOID)(pRegisterSet->GetSP() - sizeof(TADDR));
     return true;
 
-#elif defined(TARGET_ARM64) || defined(TARGET_ARM) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#elif defined(TARGET_ARM64) || defined(TARGET_ARM) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64) || defined(TARGET_RISCV32)
 
     if ((unwindBlockFlags & UBF_FUNC_HAS_ASSOCIATED_DATA) != 0)
         p += sizeof(int32_t);
