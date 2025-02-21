@@ -350,7 +350,7 @@ target_link_libraries(coreclrpal
 
 if(FEATURE_EVENT_TRACE AND NOT CLR_CMAKE_HOST_ARCH_RISCV32)
   add_subdirectory(eventprovider)
-endif(FEATURE_EVENT_TRACE)
+endif(FEATURE_EVENT_TRACE AND NOT CLR_CMAKE_HOST_ARCH_RISCV32)
 
 # Install the static PAL library for VS
 install_clr (TARGETS coreclrpal DESTINATIONS lib)
