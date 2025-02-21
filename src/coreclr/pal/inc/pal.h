@@ -2089,6 +2089,134 @@ typedef struct _KNONVOLATILE_CONTEXT_POINTERS {
     PDWORD64 F31;
 } KNONVOLATILE_CONTEXT_POINTERS, *PKNONVOLATILE_CONTEXT_POINTERS;
 
+#elif defined(HOST_RISCV32)
+
+// Please refer to src/coreclr/pal/src/arch/riscv32/asmconstants.h
+#define CONTEXT_RISCV32 0x02000000L
+
+#define CONTEXT_CONTROL (CONTEXT_RISCV32 | 0x1)
+#define CONTEXT_INTEGER (CONTEXT_RISCV32 | 0x2)
+#define CONTEXT_FLOATING_POINT  (CONTEXT_RISCV32 | 0x4)
+#define CONTEXT_DEBUG_REGISTERS (CONTEXT_RISCV32 | 0x8)
+
+#define CONTEXT_FULL (CONTEXT_CONTROL | CONTEXT_INTEGER | CONTEXT_FLOATING_POINT)
+
+#define CONTEXT_ALL (CONTEXT_CONTROL | CONTEXT_INTEGER | CONTEXT_FLOATING_POINT | CONTEXT_DEBUG_REGISTERS)
+
+#define CONTEXT_EXCEPTION_ACTIVE 0x8000000
+#define CONTEXT_SERVICE_ACTIVE 0x10000000
+#define CONTEXT_EXCEPTION_REQUEST 0x40000000
+#define CONTEXT_EXCEPTION_REPORTING 0x80000000
+
+//
+// This flag is set by the unwinder if it has unwound to a call
+// site, and cleared whenever it unwinds through a trap frame.
+// It is used by language-specific exception handlers to help
+// differentiate exception scopes during dispatching.
+//
+
+#define CONTEXT_UNWOUND_TO_CALL 0x20000000
+
+// begin_ntoshvp
+
+//
+// Specify the number of breakpoints and watchpoints that the OS
+// will track. Architecturally, RISCV32 supports up to 16. In practice,
+// however, almost no one implements more than 4 of each.
+//
+
+#define RISCV32_MAX_BREAKPOINTS     8
+#define RISCV32_MAX_WATCHPOINTS     2
+
+typedef struct DECLSPEC_ALIGN(16) _CONTEXT {
+
+    //
+    // Control flags.
+    //
+
+    /* +0x000 */ DWORD ContextFlags;
+
+    //
+    // Integer registers.
+    //
+    DWORD R0;
+    DWORD Ra;
+    DWORD Sp;
+    DWORD Gp;
+    DWORD Tp;
+    DWORD T0;
+    DWORD T1;
+    DWORD T2;
+    DWORD Fp;
+    DWORD S1;
+    DWORD A0;
+    DWORD A1;
+    DWORD A2;
+    DWORD A3;
+    DWORD A4;
+    DWORD A5;
+    DWORD A6;
+    DWORD A7;
+    DWORD S2;
+    DWORD S3;
+    DWORD S4;
+    DWORD S5;
+    DWORD S6;
+    DWORD S7;
+    DWORD S8;
+    DWORD S9;
+    DWORD S10;
+    DWORD S11;
+    DWORD T3;
+    DWORD T4;
+    DWORD T5;
+    DWORD T6;
+    DWORD Pc;
+
+    //
+    // Floating Point Registers
+    //
+    // TODO-RISCV64: support the SIMD.
+    ULONGLONG F[32];
+    DWORD Fcsr;
+} CONTEXT, *PCONTEXT, *LPCONTEXT;
+
+//
+// Nonvolatile context pointer record.
+//
+
+typedef struct _KNONVOLATILE_CONTEXT_POINTERS {
+
+    PDWORD S1;
+    PDWORD S2;
+    PDWORD S3;
+    PDWORD S4;
+    PDWORD S5;
+    PDWORD S6;
+    PDWORD S7;
+    PDWORD S8;
+    PDWORD S9;
+    PDWORD S10;
+    PDWORD S11;
+    PDWORD Fp;
+    PDWORD Gp;
+    PDWORD Tp;
+    PDWORD Ra;
+
+    PDWORD F8;
+    PDWORD F9;
+    PDWORD F18;
+    PDWORD F19;
+    PDWORD F20;
+    PDWORD F21;
+    PDWORD F22;
+    PDWORD F23;
+    PDWORD F24;
+    PDWORD F25;
+    PDWORD F26;
+    PDWORD F27;
+} KNONVOLATILE_CONTEXT_POINTERS, *PKNONVOLATILE_CONTEXT_POINTERS;
+
 #elif defined(HOST_RISCV64)
 
 // Please refer to src/coreclr/pal/src/arch/riscv64/asmconstants.h
@@ -2598,6 +2726,8 @@ PALIMPORT BOOL PALAPI PAL_GetUnwindInfoSize(SIZE_T baseAddress, ULONG64 ehFrameH
 #define PAL_CS_NATIVE_DATA_SIZE 96
 #elif defined(__linux__) && defined(__riscv) && __riscv_xlen == 64
 #define PAL_CS_NATIVE_DATA_SIZE 96
+#elif defined(__linux__) && defined(__riscv) && __riscv_xlen == 32
+#define PAL_CS_NATIVE_DATA_SIZE 80
 #elif defined(__HAIKU__) && defined(__x86_64__)
 #define PAL_CS_NATIVE_DATA_SIZE 56
 #else

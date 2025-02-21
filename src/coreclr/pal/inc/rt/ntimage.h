@@ -244,6 +244,7 @@ typedef struct _IMAGE_FILE_HEADER {
 #define IMAGE_FILE_MACHINE_ARM64             0xAA64  // ARM64 Little-Endian
 #define IMAGE_FILE_MACHINE_CEE               0xC0EE
 #define IMAGE_FILE_MACHINE_LOONGARCH64       0x6264  // LOONGARCH64.
+#define IMAGE_FILE_MACHINE_RISCV32           0x5032  // RISCV32
 #define IMAGE_FILE_MACHINE_RISCV64           0x5064  // RISCV64
 
 //
@@ -1025,6 +1026,11 @@ typedef IMAGE_RELOCATION UNALIGNED *PIMAGE_RELOCATION;
 #define IMAGE_REL_CEF_SECTION           0x0004  // Section index
 #define IMAGE_REL_CEF_SECREL            0x0005  // 32 bit offset from base of section containing target
 #define IMAGE_REL_CEF_TOKEN             0x0006  // 32 bit metadata token
+
+//
+// RISCV32 relocation types
+//
+#define IMAGE_REL_RISCV32_PC            0x0003
 
 //
 // clr relocation types.

@@ -98,6 +98,8 @@ if (HAVE_LIBPTHREAD)
   set(PTHREAD_LIBRARY pthread)
 elseif (HAVE_PTHREAD_IN_LIBC)
   set(PTHREAD_LIBRARY c)
+else ()
+  set(PTHREAD_LIBRARY pthread)
 endif()
 
 check_library_exists(${PTHREAD_LIBRARY} pthread_attr_get_np "" HAVE_PTHREAD_ATTR_GET_NP)
@@ -935,6 +937,10 @@ elseif(CLR_CMAKE_TARGET_SUNOS)
   set(SET_SCHEDPARAM_NEEDS_PRIVS 1)
 elseif(CLR_CMAKE_TARGET_HAIKU)
   # Haiku does not have ptrace.
+  set(DEADLOCK_WHEN_THREAD_IS_SUSPENDED_WHILE_BLOCKED_ON_MUTEX 0)
+  set(HAVE_SCHED_OTHER_ASSIGNABLE 1)
+elseif (CLR_CMAKE_TARGET_ARCH_RISCV32)
+  # RISCV-32 doesn't have anything
   set(DEADLOCK_WHEN_THREAD_IS_SUSPENDED_WHILE_BLOCKED_ON_MUTEX 0)
   set(HAVE_SCHED_OTHER_ASSIGNABLE 1)
 else() # Anything else is Linux
