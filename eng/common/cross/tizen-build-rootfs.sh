@@ -22,6 +22,10 @@ case "$ARCH" in
         TIZEN_ARCH="x86_64"
         LINK_ARCH="x86"
         ;;
+    riscv32)
+        TIZEN_ARCH="riscv32"
+        LINK_ARCH="riscv"
+        ;;
     riscv64)
         TIZEN_ARCH="riscv64"
         LINK_ARCH="riscv"

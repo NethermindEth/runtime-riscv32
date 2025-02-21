@@ -5,12 +5,13 @@ set -e
 usage()
 {
     echo "Usage: $0 [BuildArch] [CodeName] [lldbx.y] [llvmx[.y]] [--skipunmount] --rootfsdir <directory>]"
-    echo "BuildArch can be: arm(default), arm64, armel, armv6, loongarch64, ppc64le, riscv64, s390x, x64, x86"
+    echo "BuildArch can be: arm(default), arm64, armel, armv6, loongarch64, ppc64le, riscv32, riscv64, s390x, x64, x86"
     echo "CodeName - optional, Code name for Linux, can be: xenial(default), zesty, bionic, alpine"
     echo "                               for alpine can be specified with version: alpineX.YY or alpineedge"
     echo "                               for FreeBSD can be: freebsd13, freebsd14"
     echo "                               for illumos can be: illumos"
-    echo "                               for Haiku can be: haiku."
+    echo "                               for Haiku can be: haiku"
+    echo "                               for Buildroot can be: buildroot."
     echo "lldbx.y - optional, LLDB version, can be: lldb3.9(default), lldb4.0, lldb5.0, lldb6.0 no-lldb. Ignored for alpine and FreeBSD"
     echo "llvmx[.y] - optional, LLVM version for LLVM related packages."
     echo "--skipunmount - optional, will skip the unmount of rootfs folder."
@@ -110,6 +111,10 @@ __HaikuPackages+=" zlib_devel"
 __UbuntuPackages+=" libomp5"
 __UbuntuPackages+=" libomp-dev"
 
+# RISCV-32 fullpath
+__BuildRoot_Riscv32_rootfs="https://github.com/NethermindEth/runtime-riscv32-rootfs/raw/refs/heads/main/riscv32-rootfs.tar.gz"
+__BuildRoot_Riscv32_rootfs_local="$__CrossDir/riscv32/riscv32-rootfs.tar.gz"
+
 # Taken from https://github.com/alpinelinux/alpine-chroot-install/blob/6d08f12a8a70dd9b9dc7d997c88aa7789cc03c42/alpine-chroot-install#L85-L133
 __AlpineKeys='
 4a6a0840:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1yHJxQgsHQREclQu4Ohe\nqxTxd1tHcNnvnQTu/UrTky8wWvgXT+jpveroeWWnzmsYlDI93eLI2ORakxb3gA2O\nQ0Ry4ws8vhaxLQGC74uQR5+/yYrLuTKydFzuPaS1dK19qJPXB8GMdmFOijnXX4SA\njixuHLe1WW7kZVtjL7nufvpXkWBGjsfrvskdNA/5MfxAeBbqPgaq0QMEfxMAn6/R\nL5kNepi/Vr4S39Xvf2DzWkTLEK8pcnjNkt9/aafhWqFVW7m3HCAII6h/qlQNQKSo\nGuH34Q8GsFG30izUENV9avY7hSLq7nggsvknlNBZtFUcmGoQrtx3FmyYsIC8/R+B\nywIDAQAB
@@ -193,6 +198,15 @@ while :; do
             if [[ "$__CodeName" == "sid" ]]; then
                 __UbuntuRepo="http://ftp.ports.debian.org/debian-ports/"
             fi
+            ;;
+        riscv32)
+            __BuildArch=riscv32
+            __AlpineArch=riscv32
+            __AlpinePackages="${__AlpinePackages// lldb-dev/}"
+            __QEMUArch=riscv32
+            __UbuntuArch=riscv32
+            __UbuntuPackages="${__UbuntuPackages// libunwind8-dev/}"
+            unset __LLDB_Package
             ;;
         riscv64)
             __BuildArch=riscv64
@@ -358,7 +372,7 @@ while :; do
 
             # Debian-Ports architectures need different values
             case "$__UbuntuArch" in
-            amd64|arm64|armel|armhf|i386|mips64el|ppc64el|riscv64|s390x)
+            amd64|arm64|armel|armhf|i386|mips64el|ppc64el|riscv32|riscv64|s390x)
                 __KeyringFile="/usr/share/keyrings/debian-archive-keyring.gpg"
 
                 if [[ -z "$__UbuntuRepo" ]]; then
@@ -414,6 +428,14 @@ while :; do
             __CodeName=haiku
             __SkipUnmount=1
             ;;
+        buildroot)
+            if [[ "$__BuildArch" != "riscv32" ]] ; then
+                echo "Unknown architecture for buildroot: " $__BuildArch >&2
+                exit 1
+            fi
+            __CodeName=buildroot
+            __SkipUnmount=1
+            ;;
         --skipunmount)
             __SkipUnmount=1
             ;;
@@ -455,7 +477,7 @@ case "$__AlpineVersion" in
         elif [[ "$__AlpineArch" == "x86" ]]; then
             __AlpineVersion=3.17 # minimum version that supports lldb-dev
             __AlpinePackages+=" llvm15-libs"
-        elif [[ "$__AlpineArch" == "riscv64" || "$__AlpineArch" == "loongarch64" ]]; then
+        elif [[ "$__AlpineArch" == "riscv64" || "$__AlpineArch" == "riscv32" || "$__AlpineArch" == "loongarch64" ]]; then
             __AlpineVersion=3.21 # minimum version that supports lldb-dev
             __AlpinePackages+=" llvm19-libs"
         elif [[ -n "$__AlpineMajorVersion" ]]; then
@@ -779,6 +801,17 @@ elif [[ "$__CodeName" == "haiku" ]]; then
     echo "Cleaning up temporary files"
     popd
     rm -rf "$__RootfsDir/tmp"
+elif [[ "$__CodeName" == "buildroot" ]]; then
+    pushd "$__RootfsDir"
+    if [[ -f "$__BuildRoot_Riscv32_rootfs_local" ]]; then
+        cp "$__BuildRoot_Riscv32_rootfs_local" "$__RootfsDir/rootfs.tar.gz"
+    elif [[ "$__hasWget" == 1 ]]; then
+        wget -O "$__RootfsDir/rootfs.tar.gz" "$__BuildRoot_Riscv32_rootfs"
+    else
+        curl -SLo "$__RootfsDir/rootfs.tar.gz" "$__BuildRoot_Riscv32_rootfs"
+    fi
+    tar xvf rootfs.tar.gz
+    popd
 elif [[ -n "$__CodeName" ]]; then
     __Suites="$__CodeName $(for suite in $__UbuntuSuites; do echo -n "$__CodeName-$suite "; done)"
 
