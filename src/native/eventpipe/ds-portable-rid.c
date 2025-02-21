@@ -46,6 +46,8 @@
 #define PORTABLE_RID_ARCH "mips64"
 #elif defined(TARGET_POWERPC64)
 #define PORTABLE_RID_ARCH "ppc64le"
+#elif defined(TARGET_RISCV32)
+#define PORTABLE_RID_ARCH "riscv32"
 #elif defined(TARGET_RISCV64)
 #define PORTABLE_RID_ARCH "riscv64"
 #elif defined(TARGET_S390X)
