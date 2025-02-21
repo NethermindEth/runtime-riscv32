@@ -965,7 +965,7 @@ intptr_t SystemNative_MksTemps(char* pathTemplate, int32_t suffixLength)
     {
         pathTemplate[firstSuffixIndex] = firstSuffixChar;
     }
-#elif TARGET_WASI
+#elif defined(TARGET_WASI)
     assert_msg(false, "Not supported on WASI", 0);
     result = -1;
 #else
