@@ -110,7 +110,11 @@ if(FEATURE_STANDALONE_GC)
 
   # clrgc is build with standalone+segments
   add_library_clr(clrgc SHARED ${GC_SOURCES})
-  add_dependencies(clrgc eventing_headers)
+
+  if (NOT CLR_CMAKE_HOST_ARCH_RISCV32)
+    add_dependencies(clrgc eventing_headers)
+  endif ()
+
   target_link_libraries(clrgc PRIVATE ${GC_LINK_LIBRARIES})
   install_clr(TARGETS clrgc DESTINATIONS . COMPONENT runtime)
 
