@@ -675,10 +675,11 @@ typedef struct DECLSPEC_ALIGN(16) {
     DWORD T6;
     DWORD Pc;
 
+    /* FIXME: multi float support */
     //
     // Floating Point Registers
     //
-    ULONG F[32];
+    ULONGLONG F[32];
     DWORD Fcsr;
 } DT_CONTEXT;
 
