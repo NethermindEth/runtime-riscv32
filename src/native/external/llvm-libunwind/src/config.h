@@ -226,7 +226,7 @@
 #ifdef __cplusplus
 // Used to fit UnwindCursor and Registers_xxx types against unw_context_t /
 // unw_cursor_t sized memory blocks.
-#if defined(_LIBUNWIND_IS_NATIVE_ONLY)
+#if defined(_LIBUNWIND_IS_NATIVE_ONLY) && !defined(_LIBUNWIND_RISCV32_HACK)
 # define COMP_OP ==
 #else
 # define COMP_OP <=
