@@ -20,12 +20,12 @@
     // Setup a PAL_LIMITED_CONTEXT on the stack {
     .if \exceptionType == HARDWARE_EXCEPTION
         addi  sp, sp, -0x38
-        // .cfi_adjust_cfa_offset  0x38
+        .cfi_adjust_cfa_offset  0x38
         sw  a3, 0(sp)          // a3 is the SP and a1 is the IP of the fault site
         sw  a1, 4(sp)
     .else
         PROLOG_STACK_ALLOC  0x38
-        // .cfi_adjust_cfa_offset  0x38
+        .cfi_adjust_cfa_offset  0x38
         sw  a3, 0(sp)          // a3 is the SP and ra is the IP of the fault site
         sw  ra, 4(sp)
     .endif
@@ -604,8 +604,8 @@ LOCAL_LABEL(NoAbort):
         fsw  fs11, 0x2c(sp)
 
         // Save integer registers
-        sw a0, 0x30(sp)  // Save a0 to 0x60
-        sw a1, 0x34(sp)  // Save a1 to 0x68
+        sw a0, 0x30(sp)  // Save a0 to 0x30
+        sw a1, 0x34(sp)  // Save a1 to 0x34
 
 #define rsp_offset_a1 0x34
 #define rsp_FinallyFunclet_offset_thread 0x38
