@@ -96,7 +96,7 @@ C_FUNC(\Name):
 .endm
 
 .macro PROLOG_SAVE_REG_PAIR_INDEXED reg1, reg2, ssize, __def_cfa_save=1
-    addi  sp, sp, -\ssize
+    addi  sp, sp, \ssize
     //.cfi_adjust_cfa_offset  \ssize
     .cfi_def_cfa  sp, \ssize
 
