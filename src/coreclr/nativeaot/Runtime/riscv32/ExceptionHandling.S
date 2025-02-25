@@ -20,12 +20,12 @@
     // Setup a PAL_LIMITED_CONTEXT on the stack {
     .if \exceptionType == HARDWARE_EXCEPTION
         addi  sp, sp, -0x38
-        .cfi_adjust_cfa_offset  0x38
+        // .cfi_adjust_cfa_offset  0x38
         sw  a3, 0(sp)          // a3 is the SP and a1 is the IP of the fault site
         sw  a1, 4(sp)
     .else
         PROLOG_STACK_ALLOC  0x38
-        .cfi_adjust_cfa_offset  0x38
+        // .cfi_adjust_cfa_offset  0x38
         sw  a3, 0(sp)          // a3 is the SP and ra is the IP of the fault site
         sw  ra, 4(sp)
     .endif
@@ -212,9 +212,6 @@
 #if _DEBUG
         // Create a pattern to store
         li  a3, 0xbaaddeed
-        mv  t0, a3
-        slli  a3, a3, 32
-        or  a3, a3, t0
 
         // Store the pattern into each register's location
         lw t3, OFFSETOF__REGDISPLAY__pS1(\regdisplayReg)
