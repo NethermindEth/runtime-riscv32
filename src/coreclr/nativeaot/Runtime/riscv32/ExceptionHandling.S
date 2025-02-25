@@ -44,10 +44,10 @@
     fsw  fs10, 0x30(sp)
     fsw  fs11, 0x34(sp)
 
-    PROLOG_SAVE_REG_PAIR_INDEXED  fp, ra, 0x3с
+    PROLOG_SAVE_REG_PAIR_INDEXED  fp, ra, 0x3c
 
     sw  zero, 0x8(sp)        // locations reserved for return value, not used for exception handling
-    sw  zero, 0xс(sp)
+    sw  zero, 0xc(sp)
     PROLOG_SAVE_REG_PAIR  s1, s2,  0x10
     PROLOG_SAVE_REG_PAIR  s3, s4,  0x18
     PROLOG_SAVE_REG_PAIR  s5, s6,  0x20
@@ -70,7 +70,7 @@
         // sp in fp. If sp is saved in fp in prolog then it is not expected that fp can change in the body
         // of method. However, this method needs to be able to change fp before calling funclet.
         // This is required to access locals in funclet.
-        PROLOG_SAVE_REG_PAIR_NO_FP_INDEXED  fp, ra, 0x3с
+        PROLOG_SAVE_REG_PAIR_NO_FP_INDEXED  fp, ra, 0x3c
         PROLOG_SAVE_REG_PAIR  s1, s2,  0x10
         PROLOG_SAVE_REG_PAIR  s3, s4,  0x18
         PROLOG_SAVE_REG_PAIR  s5, s6,  0x20
@@ -102,7 +102,7 @@
     EPILOG_RESTORE_REG_PAIR  s7, s8,  0x28
     EPILOG_RESTORE_REG_PAIR  s9, s10, 0x30
     EPILOG_RESTORE_REG       s11,     0x38
-    EPILOG_RESTORE_REG_PAIR_INDEXED  fp, ra, 0x3с
+    EPILOG_RESTORE_REG_PAIR_INDEXED  fp, ra, 0x3c
 .endm
 
 // -----------------------------------------------------------------------------
