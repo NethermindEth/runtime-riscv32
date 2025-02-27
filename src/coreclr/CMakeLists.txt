@@ -260,10 +260,11 @@ if(CLR_CMAKE_HOST_UNIX)
   add_subdirectory(nativeresources)
 endif(CLR_CMAKE_HOST_UNIX)
 
+if(NOT CLR_CMAKE_HOST_TVOS)
+  add_subdirectory(inc)
+endif()
 if(NOT CLR_CMAKE_HOST_TVOS AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
   add_subdirectory(utilcode)
-  add_subdirectory(inc)
-
   if (CLR_CMAKE_BUILD_TOOLS)
     add_subdirectory(ilasm)
     add_subdirectory(ildasm)
