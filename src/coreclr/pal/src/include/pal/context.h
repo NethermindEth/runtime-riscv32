@@ -325,6 +325,43 @@ struct sve_context {
 
 #else // HOST_64BIT
 
+#if defined(HOST_RISCV32)
+
+#define MCREG_Ra(mc)      ((mc).__gregs[1])
+#define MCREG_Sp(mc)      ((mc).__gregs[2])
+#define MCREG_Gp(mc)      ((mc).__gregs[3])
+#define MCREG_Tp(mc)      ((mc).__gregs[4])
+#define MCREG_T0(mc)      ((mc).__gregs[5])
+#define MCREG_T1(mc)      ((mc).__gregs[6])
+#define MCREG_T2(mc)      ((mc).__gregs[7])
+#define MCREG_Fp(mc)      ((mc).__gregs[8])
+#define MCREG_S1(mc)      ((mc).__gregs[9])
+#define MCREG_A0(mc)      ((mc).__gregs[10])
+#define MCREG_A1(mc)      ((mc).__gregs[11])
+#define MCREG_A2(mc)      ((mc).__gregs[12])
+#define MCREG_A3(mc)      ((mc).__gregs[13])
+#define MCREG_A4(mc)      ((mc).__gregs[14])
+#define MCREG_A5(mc)      ((mc).__gregs[15])
+#define MCREG_A6(mc)      ((mc).__gregs[16])
+#define MCREG_A7(mc)      ((mc).__gregs[17])
+#define MCREG_S2(mc)      ((mc).__gregs[18])
+#define MCREG_S3(mc)      ((mc).__gregs[19])
+#define MCREG_S4(mc)      ((mc).__gregs[20])
+#define MCREG_S5(mc)      ((mc).__gregs[21])
+#define MCREG_S6(mc)      ((mc).__gregs[22])
+#define MCREG_S7(mc)      ((mc).__gregs[23])
+#define MCREG_S8(mc)      ((mc).__gregs[24])
+#define MCREG_S9(mc)      ((mc).__gregs[25])
+#define MCREG_S10(mc)     ((mc).__gregs[26])
+#define MCREG_S11(mc)     ((mc).__gregs[27])
+#define MCREG_T3(mc)      ((mc).__gregs[28])
+#define MCREG_T4(mc)      ((mc).__gregs[29])
+#define MCREG_T5(mc)      ((mc).__gregs[30])
+#define MCREG_T6(mc)      ((mc).__gregs[31])
+#define MCREG_Pc(mc)      ((mc).__gregs[0])
+
+#else
+
 #define MCREG_Ebx(mc)       ((mc).__gregs[_REG_EBX])
 #define MCREG_Ecx(mc)       ((mc).__gregs[_REG_ECX])
 #define MCREG_Edx(mc)       ((mc).__gregs[_REG_EDX])
@@ -337,6 +374,7 @@ struct sve_context {
 #define MCREG_SegCs(mc)     ((mc).__gregs[_REG_CS])
 #define MCREG_SegSs(mc)     ((mc).__gregs[_REG_SS])
 #define MCREG_EFlags(mc)    ((mc).__gregs[_REG_RFLAGS])
+#endif
 
 #endif // HOST_64BIT
 
