@@ -208,6 +208,46 @@ typedef int __ptrace_request;
     ASSIGN_REG(S8)     \
     ASSIGN_REG(X0)
 
+#elif defined(HOST_RISCV32)
+
+// https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/2d865a2964fe06bfc569ab00c74e152b582ed764/riscv-cc.adoc
+
+#define ASSIGN_CONTROL_REGS  \
+    ASSIGN_REG(Ra)      \
+    ASSIGN_REG(Sp)      \
+    ASSIGN_REG(Fp)      \
+    ASSIGN_REG(Pc)
+
+#define ASSIGN_INTEGER_REGS \
+    ASSIGN_REG(Gp)     \
+    ASSIGN_REG(Tp)     \
+    ASSIGN_REG(T0)     \
+    ASSIGN_REG(T1)     \
+    ASSIGN_REG(T2)     \
+    ASSIGN_REG(S1)     \
+    ASSIGN_REG(A0)     \
+    ASSIGN_REG(A1)     \
+    ASSIGN_REG(A2)     \
+    ASSIGN_REG(A3)     \
+    ASSIGN_REG(A4)     \
+    ASSIGN_REG(A5)     \
+    ASSIGN_REG(A6)     \
+    ASSIGN_REG(A7)     \
+    ASSIGN_REG(S2)     \
+    ASSIGN_REG(S3)     \
+    ASSIGN_REG(S4)     \
+    ASSIGN_REG(S5)     \
+    ASSIGN_REG(S6)     \
+    ASSIGN_REG(S7)     \
+    ASSIGN_REG(S8)     \
+    ASSIGN_REG(S9)     \
+    ASSIGN_REG(S10)    \
+    ASSIGN_REG(S11)    \
+    ASSIGN_REG(T3)     \
+    ASSIGN_REG(T4)     \
+    ASSIGN_REG(T5)     \
+    ASSIGN_REG(T6)
+
 #elif defined(HOST_RISCV64)
 
 // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/2d865a2964fe06bfc569ab00c74e152b582ed764/riscv-cc.adoc
