@@ -57,13 +57,13 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro PROLOG_SAVE_REG reg, ofs
-    sd \reg, \ofs(sp)
+    sw \reg, \ofs(sp)
     .cfi_rel_offset \reg, \ofs
 .endm
 
 .macro PROLOG_SAVE_REG_PAIR reg1, reg2, ofs, __def_cfa_save=0
-    sd \reg1, \ofs(sp)
-    sd \reg2, (\ofs+8)(sp)
+    sw \reg1, \ofs(sp)
+    sw \reg2, (\ofs+4)(sp)
     .cfi_rel_offset \reg1, \ofs
     .cfi_rel_offset \reg2, \ofs + 8
     .if (\__def_cfa_save ==  1)
@@ -76,11 +76,11 @@ C_FUNC(\Name\()_End):
     addi sp, sp, -\ssize
     .cfi_adjust_cfa_offset \ssize
 
-    sd \reg1, 0(sp)
-    sd \reg2, 8(sp)
+    sw \reg1, 0(sp)
+    sw \reg2, 4(sp)
 
     .cfi_rel_offset \reg1, 0
-    .cfi_rel_offset \reg2, 8
+    .cfi_rel_offset \reg2, 4
     .if (\__def_cfa_save ==  1)
         addi fp, sp, 0
         .cfi_def_cfa_register fp
@@ -88,20 +88,20 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro EPILOG_RESTORE_REG reg, ofs
-    ld  \reg, (\ofs)(sp)
+    lw  \reg, (\ofs)(sp)
     .cfi_restore \reg
 .endm
 
 .macro EPILOG_RESTORE_REG_PAIR reg1, reg2, ofs
-    ld  \reg2, (\ofs+8)(sp)
-    ld  \reg1, (\ofs)(sp)
+    lw  \reg2, (\ofs+4)(sp)
+    lw  \reg1, (\ofs)(sp)
     .cfi_restore \reg2
     .cfi_restore \reg1
 .endm
 
 .macro EPILOG_RESTORE_REG_PAIR_INDEXED reg1, reg2, ssize
-    ld  \reg2, 8(sp)
-    ld  \reg1, 0(sp)
+    lw  \reg2, 4(sp)
+    lw  \reg1, 0(sp)
     .cfi_restore \reg2
     .cfi_restore \reg1
 
@@ -132,37 +132,37 @@ C_FUNC(\Name\()_End):
 
 // Reserve 64 bytes of memory before calling  SAVE_CALLEESAVED_REGISTERS
 .macro SAVE_CALLEESAVED_REGISTERS reg, ofs
-    PROLOG_SAVE_REG_PAIR s1, s2, \ofs + 16
-    PROLOG_SAVE_REG_PAIR s3, s4, \ofs + 32
-    PROLOG_SAVE_REG_PAIR s5, s6, \ofs + 48
-    PROLOG_SAVE_REG_PAIR s7, s8, \ofs + 64
-    PROLOG_SAVE_REG_PAIR s9, s10, \ofs + 80
-    PROLOG_SAVE_REG_PAIR s11, tp  \ofs + 96
-    PROLOG_SAVE_REG      gp,  \ofs + 112
+    PROLOG_SAVE_REG_PAIR s1, s2, \ofs + 8
+    PROLOG_SAVE_REG_PAIR s3, s4, \ofs + 16
+    PROLOG_SAVE_REG_PAIR s5, s6, \ofs + 24
+    PROLOG_SAVE_REG_PAIR s7, s8, \ofs + 32
+    PROLOG_SAVE_REG_PAIR s9, s10, \ofs + 40
+    PROLOG_SAVE_REG_PAIR s11, tp  \ofs + 48
+    PROLOG_SAVE_REG      gp,  \ofs + 56
 .endm
 
 // Reserve 64 bytes of memory before calling  SAVE_ARGUMENT_REGISTERS
 .macro SAVE_ARGUMENT_REGISTERS reg, ofs
-    sd  a0, (\ofs)(\reg)
-    sd  a1, (\ofs + 8)(\reg)
-    sd  a2, (\ofs + 16)(\reg)
-    sd  a3, (\ofs + 24)(\reg)
-    sd  a4, (\ofs + 32)(\reg)
-    sd  a5, (\ofs + 40)(\reg)
-    sd  a6, (\ofs + 48)(\reg)
-    sd  a7, (\ofs + 56)(\reg)
+    sw  a0, (\ofs)(\reg)
+    sw  a1, (\ofs + 4)(\reg)
+    sw  a2, (\ofs + 8)(\reg)
+    sw  a3, (\ofs + 12)(\reg)
+    sw  a4, (\ofs + 16)(\reg)
+    sw  a5, (\ofs + 20)(\reg)
+    sw  a6, (\ofs + 24)(\reg)
+    sw  a7, (\ofs + 28)(\reg)
 .endm
 
 // Reserve 64 bytes of memory before calling  SAVE_FLOAT_ARGUMENT_REGISTERS
 .macro SAVE_FLOAT_ARGUMENT_REGISTERS reg, ofs
-    fsd  fa0, (\ofs)(\reg)
-    fsd  fa1, (\ofs + 8)(\reg)
-    fsd  fa2, (\ofs + 16)(\reg)
-    fsd  fa3, (\ofs + 24)(\reg)
-    fsd  fa4, (\ofs + 32)(\reg)
-    fsd  fa5, (\ofs + 40)(\reg)
-    fsd  fa6, (\ofs + 48)(\reg)
-    fsd  fa7, (\ofs + 56)(\reg)
+    fsw  fa0, (\ofs)(\reg)
+    fsw  fa1, (\ofs + 4)(\reg)
+    fsw  fa2, (\ofs + 8)(\reg)
+    fsw  fa3, (\ofs + 12)(\reg)
+    fsw  fa4, (\ofs + 16)(\reg)
+    fsw  fa5, (\ofs + 20)(\reg)
+    fsw  fa6, (\ofs + 24)(\reg)
+    fsw  fa7, (\ofs + 28)(\reg)
 .endm
 
 // Reserve 64 bytes of memory before calling  SAVE_FLOAT_CALLEESAVED_REGISTERS
@@ -172,35 +172,35 @@ C_FUNC(\Name\()_End):
 .endm
 
 .macro RESTORE_CALLEESAVED_REGISTERS reg, ofs
-    EPILOG_RESTORE_REG      gp  \ofs + 112
-    EPILOG_RESTORE_REG_PAIR s11, tp  \ofs + 96
-    EPILOG_RESTORE_REG_PAIR s9, s10, \ofs + 80 
-    EPILOG_RESTORE_REG_PAIR s7, s8,  \ofs + 64
-    EPILOG_RESTORE_REG_PAIR s5, s6,  \ofs + 48
-    EPILOG_RESTORE_REG_PAIR s3, s4,  \ofs + 32
-    EPILOG_RESTORE_REG_PAIR s1, s2,  \ofs + 16
+    EPILOG_RESTORE_REG      gp  \ofs + 56
+    EPILOG_RESTORE_REG_PAIR s11, tp  \ofs + 48
+    EPILOG_RESTORE_REG_PAIR s9, s10, \ofs + 40
+    EPILOG_RESTORE_REG_PAIR s7, s8,  \ofs + 32
+    EPILOG_RESTORE_REG_PAIR s5, s6,  \ofs + 24
+    EPILOG_RESTORE_REG_PAIR s3, s4,  \ofs + 16
+    EPILOG_RESTORE_REG_PAIR s1, s2,  \ofs + 8
 .endm
 
 .macro RESTORE_ARGUMENT_REGISTERS reg, ofs
-    ld  a0, (\ofs)(\reg)
-    ld  a1, (\ofs + 8)(\reg)
-    ld  a2, (\ofs + 16)(\reg)
-    ld  a3, (\ofs + 24)(\reg)
-    ld  a4, (\ofs + 32)(\reg)
-    ld  a5, (\ofs + 40)(\reg)
-    ld  a6, (\ofs + 48)(\reg)
-    ld  a7, (\ofs + 56)(\reg)
+    lw  a0, (\ofs)(\reg)
+    lw  a1, (\ofs + 4)(\reg)
+    lw  a2, (\ofs + 8)(\reg)
+    lw  a3, (\ofs + 12)(\reg)
+    lw  a4, (\ofs + 16)(\reg)
+    lw  a5, (\ofs + 20)(\reg)
+    lw  a6, (\ofs + 24)(\reg)
+    lw  a7, (\ofs + 28)(\reg)
 .endm
 
 .macro RESTORE_FLOAT_ARGUMENT_REGISTERS reg, ofs
-    fld  fa0, (\ofs)(\reg)
-    fld  fa1, (\ofs + 8)(\reg)
-    fld  fa2, (\ofs + 16)(\reg)
-    fld  fa3, (\ofs + 24)(\reg)
-    fld  fa4, (\ofs + 32)(\reg)
-    fld  fa5, (\ofs + 40)(\reg)
-    fld  fa6, (\ofs + 48)(\reg)
-    fld  fa7, (\ofs + 56)(\reg)
+    flw  fa0, (\ofs)(\reg)
+    flw  fa1, (\ofs + 4)(\reg)
+    flw  fa2, (\ofs + 8)(\reg)
+    flw  fa3, (\ofs + 12)(\reg)
+    flw  fa4, (\ofs + 16)(\reg)
+    flw  fa5, (\ofs + 20)(\reg)
+    flw  fa6, (\ofs + 24)(\reg)
+    flw  fa7, (\ofs + 28)(\reg)
 .endm
 
 .macro RESTORE_FLOAT_CALLEESAVED_REGISTERS reg, ofs
