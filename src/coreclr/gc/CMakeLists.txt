@@ -109,7 +109,7 @@ if(FEATURE_STANDALONE_GC)
   endif (CLR_CMAKE_TARGET_ARCH_ARM64 OR CLR_CMAKE_TARGET_ARCH_AMD64)
 
   # clrgc is build with standalone+segments
-  add_library_clr(clrgc SHARED ${GC_SOURCES})
+  add_library_clr(clrgc STATIC ${GC_SOURCES})
 
   if (NOT CLR_CMAKE_HOST_ARCH_RISCV32)
     add_dependencies(clrgc eventing_headers)
