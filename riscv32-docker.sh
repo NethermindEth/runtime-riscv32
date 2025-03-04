@@ -1,6 +1,12 @@
 #!/bin/bash
 export TOP_DIR="$(cd "$(dirname "$(which "$0")")" ; pwd -P)"
 
+interactive="-it"
+
+if [ -z "$PS1" ] ; then
+    interactive="-t"
+fi
+
 pushd "${TOP_DIR}" > /dev/null 2> /dev/null
 image="$(docker build -q --build-arg "HOME_PATH=$(pwd)" -f riscv32-Dockerfile .)"
 if [ "$?" != "0" ] ; then
@@ -8,7 +14,7 @@ if [ "$?" != "0" ] ; then
     exit 1
 fi
 
-docker run -e ROOTFS_DIR=$(pwd)/crossrootfs/riscv32 -v$(pwd):$(pwd) -w $(pwd) --rm -it ${image} $@
+docker run -e ROOTFS_DIR=$(pwd)/crossrootfs/riscv32 -v$(pwd):$(pwd) -w $(pwd) --rm $interactive ${image} $@
 ret_code="$?"
 popd > /dev/null 2> /dev/null
 exit $ret_code
