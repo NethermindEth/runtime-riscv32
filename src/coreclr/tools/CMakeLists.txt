@@ -1,5 +1,7 @@
 add_subdirectory(SOS)
-add_subdirectory(superpmi)
+if (NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
+  add_subdirectory(superpmi)
+endif ()
 
 if (CLR_CMAKE_TARGET_ARCH_AMD64 OR CLR_CMAKE_TARGET_ARCH_ARM64)
   add_subdirectory(StressLogAnalyzer)
