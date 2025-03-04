@@ -46,6 +46,8 @@ namespace System.Runtime.InteropServices
             => Architecture.Ppc64le
 #elif TARGET_RISCV64
             => Architecture.RiscV64
+#elif TARGET_RISCV32
+            => Architecture.RiscV32
 #else
 #error Unknown Architecture
 #endif
