@@ -12,7 +12,7 @@ if(CLR_CMAKE_TARGET_WIN32)
 endif()
 
 add_library_clr(jitinterface_${ARCH_HOST_NAME}
-    SHARED
+    STATIC
     ${NATIVE_SOURCES}
     ${JITINTERFACE_RESOURCES}
 )
