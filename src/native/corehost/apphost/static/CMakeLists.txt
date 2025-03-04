@@ -175,15 +175,17 @@ else()
         System.Native-Static
     )
 
-    if(NOT CLR_CMAKE_TARGET_ANDROID)
-        list(APPEND NATIVE_LIBS
-            System.Net.Security.Native-Static
-            System.Security.Cryptography.Native.OpenSsl-Static
-        )
-    else()
-        list(APPEND NATIVE_LIBS
-            System.Security.Cryptography.Native.Android-Static
-        )
+    if (NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
+        if(NOT CLR_CMAKE_TARGET_ANDROID)
+            list(APPEND NATIVE_LIBS
+                System.Net.Security.Native-Static
+                System.Security.Cryptography.Native.OpenSsl-Static
+            )
+        else()
+            list(APPEND NATIVE_LIBS
+                System.Security.Cryptography.Native.Android-Static
+            )
+        endif()
     endif()
 
     list(APPEND NATIVE_LIBS
