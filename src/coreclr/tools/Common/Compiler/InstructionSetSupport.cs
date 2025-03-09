@@ -101,6 +101,10 @@ namespace ILCompiler
             {
                 return "";
             }
+            else if (architecture is TargetArchitecture.RiscV32)
+            {
+                return "";
+            }
             else if (architecture is TargetArchitecture.RiscV64)
             {
                 return "";
@@ -154,6 +158,10 @@ namespace ILCompiler
                 return SimdVectorLength.None;
             }
             else if (_targetArchitecture == TargetArchitecture.LoongArch64)
+            {
+                return SimdVectorLength.None;
+            }
+            else if (_targetArchitecture == TargetArchitecture.RiscV32)
             {
                 return SimdVectorLength.None;
             }

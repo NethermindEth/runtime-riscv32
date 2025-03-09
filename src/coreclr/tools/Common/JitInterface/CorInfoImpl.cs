@@ -56,6 +56,7 @@ namespace Internal.JitInterface
             ARM = 0x01c4,
             ARM64 = 0xaa64,
             LoongArch64 = 0x6264,
+            RiscV32 = 0x5032,
             RiscV64 = 0x5064,
         }
 
@@ -414,6 +415,7 @@ namespace Internal.JitInterface
             {
                 if (_compilation.TypeSystemContext.Target.Architecture != TargetArchitecture.ARM64
                     && _compilation.TypeSystemContext.Target.Architecture != TargetArchitecture.LoongArch64
+                    && _compilation.TypeSystemContext.Target.Architecture != TargetArchitecture.RiscV32
                     && _compilation.TypeSystemContext.Target.Architecture != TargetArchitecture.RiscV64)
                 {
                     // For xarch/arm32/LoongArch64/RiscV64, the generated code is sometimes smaller than the memory allocated.
@@ -4024,6 +4026,7 @@ namespace Internal.JitInterface
                             return 0;
                     }
                 }
+                case TargetArchitecture.RiscV32:
                 case TargetArchitecture.RiscV64:
                 {
                     const ushort IMAGE_REL_RISCV64_PC = 3;
@@ -4140,6 +4143,8 @@ namespace Internal.JitInterface
                     return (uint)ImageFileMachine.ARM64;
                 case TargetArchitecture.LoongArch64:
                     return (uint)ImageFileMachine.LoongArch64;
+                case TargetArchitecture.RiscV32:
+                    return (uint)ImageFileMachine.RiscV32;
                 case TargetArchitecture.RiscV64:
                     return (uint)ImageFileMachine.RiscV64;
                 default:
@@ -4229,7 +4234,7 @@ namespace Internal.JitInterface
             if (targetArchitecture == TargetArchitecture.ARM && !_compilation.TypeSystemContext.Target.IsWindows)
                 flags.Set(CorJitFlag.CORJIT_FLAG_RELATIVE_CODE_RELOCS);
 
-            if (targetArchitecture == TargetArchitecture.RiscV64)
+            if (targetArchitecture == TargetArchitecture.RiscV32 || targetArchitecture == TargetArchitecture.RiscV64)
                 flags.Set(CorJitFlag.CORJIT_FLAG_FRAMED);
 
             if (this.MethodBeingCompiled.IsUnmanagedCallersOnly)
