@@ -23,6 +23,7 @@ namespace R2RDump
             Target_Thumb,
             Target_Arm64,
             Target_LoongArch64,
+            Target_RiscV32,
             Target_RiscV64,
         };
 
@@ -74,6 +75,9 @@ namespace R2RDump
                     break;
                 case Machine.LoongArch64:
                     target = TargetArch.Target_LoongArch64;
+                    break;
+                case Machine.RiscV32:
+                    target = TargetArch.Target_RiscV32;
                     break;
                 case Machine.RiscV64:
                     target = TargetArch.Target_RiscV64;
@@ -194,6 +198,10 @@ namespace R2RDump
 
                     // Instructions are dumped as 4-byte hexadecimal integers
                     // TODO: update once RISC-V runtime supports "C" extension (compressed instructions)
+                    Machine.RiscV32 => 4 * 2 + 1,
+
+                    // Instructions are dumped as 4-byte hexadecimal integers
+                    // TODO: update once RISC-V runtime supports "C" extension (compressed instructions)
                     Machine.RiscV64 => 4 * 2 + 1,
 
                     _ => throw new NotImplementedException()
@@ -271,7 +279,7 @@ namespace R2RDump
                     else
                     {
                         // TODO: update once RISC-V runtime supports "C" extension (compressed instructions)
-                        if (_reader.Machine is Machine.Arm64 or Machine.LoongArch64 or Machine.RiscV64)
+                        if (_reader.Machine is Machine.Arm64 or Machine.LoongArch64 or Machine.RiscV32 or Machine.RiscV64)
                         {
                             // Replace " hh hh hh hh " byte dump with " hhhhhhhh ".
                             // CoreDisTools should be fixed to dump bytes this way for ARM64.
@@ -359,6 +367,7 @@ namespace R2RDump
                     case Machine.ArmThumb2:
                         break;
 
+                    case Machine.RiscV32:
                     case Machine.RiscV64:
                         ProbeRiscV64Quirks(rtf, imageOffset, rtfOffset, ref fixedTranslatedLine);
                         break;
