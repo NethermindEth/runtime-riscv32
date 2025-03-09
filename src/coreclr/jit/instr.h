@@ -10,6 +10,8 @@
 #define BAD_CODE 0XFFFFFFFF
 #elif TARGET_RISCV64
 #define BAD_CODE 0X00000000
+#elif TARGET_RISCV64
+#define BAD_CODE 0X00000000
 #else
 #define BAD_CODE 0x0BADC0DE // better not match a real encoding!
 #endif
@@ -68,6 +70,11 @@ enum instruction : uint32_t
 
 #elif defined(TARGET_LOONGARCH64)
     #define INST(id, nm, ldst, e1, msk, fmt) INS_##id,
+    #include "instrs.h"
+
+    INS_lea,   // Not a real instruction. It is used for load the address of stack locals
+#elif defined(TARGET_RISCV32)
+    #define INST(id, nm, ldst, e1) INS_##id,
     #include "instrs.h"
 
     INS_lea,   // Not a real instruction. It is used for load the address of stack locals
@@ -288,7 +295,7 @@ enum insOpts: unsigned
 
 };
 
-#elif defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#elif defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
 // TODO-Cleanup: Move 'insFlags' under TARGET_ARM
 enum insFlags: unsigned
 {
@@ -521,6 +528,25 @@ enum insBarrier : unsigned
     INS_BARRIER_ACQ   =  INS_BARRIER_FULL,//17,
     INS_BARRIER_REL   =  INS_BARRIER_FULL,//18,
     INS_BARRIER_RMB   =  INS_BARRIER_FULL,//19,
+};
+#elif defined(TARGET_RISCV32)
+enum insOpts : unsigned
+{
+    INS_OPTS_NONE,
+
+    INS_OPTS_RC,     // see ::emitIns_R_C().
+    INS_OPTS_RL,     // see ::emitIns_R_L().
+    INS_OPTS_JALR,   // see ::emitIns_J_R().
+    INS_OPTS_J,      // see ::emitIns_J().
+    INS_OPTS_J_cond, // see ::emitIns_J_cond_la().
+    INS_OPTS_I,      // see ::emitLoadImmediate().
+    INS_OPTS_C,      // see ::emitIns_Call().
+    INS_OPTS_RELOC,  // see ::emitIns_R_AI().
+};
+
+enum insBarrier : unsigned
+{
+    INS_BARRIER_FULL  =  0x33,
 };
 #elif defined(TARGET_RISCV64)
 enum insOpts : unsigned

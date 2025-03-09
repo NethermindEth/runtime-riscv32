@@ -465,6 +465,10 @@ UNATIVE_OFFSET Compiler::unwindGetCurrentOffset(FuncInfoDsc* func)
 
 // See unwindLoongarch64.cpp
 
+#elif defined(TARGET_RISCV32)
+
+// See unwindRiscv32.cpp
+
 #elif defined(TARGET_RISCV64)
 
 // See unwindRiscv64.cpp

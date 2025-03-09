@@ -9,6 +9,8 @@
 #include "instrsarm64.h"
 #elif defined(TARGET_LOONGARCH64)
 #include "instrsloongarch64.h"
+#elif defined(TARGET_RISCV32)
+#include "instrsriscv32.h"
 #elif defined(TARGET_RISCV64)
 #include "instrsriscv64.h"
 #else

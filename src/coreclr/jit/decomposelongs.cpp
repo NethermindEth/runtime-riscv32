@@ -945,6 +945,16 @@ GenTree* DecomposeLongs::DecomposeNeg(LIR::Use& use)
 
     loResult->gtFlags |= GTF_SET_FLAGS;
 
+#elif defined(TARGET_RISCV32)
+
+    // We tend to use "movs" to load zero to a register, and that sets the flags, so put the
+    // zero before the loResult, which is setting the flags needed by GT_SUB_HI.
+    GenTree* hiResult = m_compiler->gtNewOperNode(GT_SUB_HI, TYP_INT, zero, hiOp1);
+    Range().InsertBefore(loResult, zero);
+    Range().InsertAfter(loResult, hiResult);
+
+    loResult->gtFlags |= GTF_SET_FLAGS;
+
 #endif
 
     return FinalizeDecomposition(use, loResult, hiResult, hiResult);

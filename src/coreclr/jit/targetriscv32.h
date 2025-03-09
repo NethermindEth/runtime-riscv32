@@ -39,7 +39,7 @@
   #define USER_ARGS_COME_LAST      1
   #define EMIT_TRACK_STACK_DEPTH   1       // This is something of a workaround.  For both ARM and AMD64, the frame size is fixed, so we don't really
                                            // need to track stack depth, but this is currently necessary to get GC information reported at call sites.
-  #define TARGET_POINTER_SIZE      8       // equal to sizeof(void*) and the managed pointer size in bytes for this target
+  #define TARGET_POINTER_SIZE      4       // equal to sizeof(void*) and the managed pointer size in bytes for this target
   #define FEATURE_EH               1       // To aid platform bring-up, eliminate exceptional EH clauses (catch, filter, filter-handler, fault) and directly execute 'finally' clauses.
   #define ETW_EBP_FRAMED           1       // if 1 we cannot use REG_FP as a scratch register and must setup the frame pointer for most methods
   #define CSE_CONSTS               1       // Enable if we want to CSE constants
@@ -50,9 +50,9 @@
   #define LAST_FP_ARGREG           REG_FA7
 
   #define REGNUM_BITS              6       // number of bits in a REG_*
-  #define REGSIZE_BYTES            8       // number of bytes in one general purpose register
-  #define FP_REGSIZE_BYTES         8      // number of bytes in one FP/SIMD register
-  #define FPSAVE_REGSIZE_BYTES     8       // number of bytes in one FP/SIMD register that are saved/restored, for callee-saved registers
+  #define REGSIZE_BYTES            4       // number of bytes in one general purpose register
+  #define FP_REGSIZE_BYTES         4      // number of bytes in one FP/SIMD register
+  #define FPSAVE_REGSIZE_BYTES     4       // number of bytes in one FP/SIMD register that are saved/restored, for callee-saved registers
 
   #define MIN_ARG_AREA_FOR_CALL    0       // Minimum required outgoing argument space for a call.
 
@@ -201,6 +201,10 @@
   #define RBM_INTRET               RBM_A0
   #define REG_LNGRET               REG_A0
   #define RBM_LNGRET               RBM_A0
+  #define REG_LNGRET_LO            REG_A0
+  #define REG_LNGRET_HI            REG_A1
+  #define RBM_LNGRET_LO            RBM_A0
+  #define RBM_LNGRET_HI            RBM_A1
   // second return register for 16-byte structs
   #define REG_INTRET_1             REG_A1
   #define RBM_INTRET_1             RBM_A1

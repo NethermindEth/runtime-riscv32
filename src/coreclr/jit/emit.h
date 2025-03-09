@@ -645,7 +645,7 @@ protected:
         insFormat _idInsFmt : 7;
 #elif defined(TARGET_LOONGARCH64)
         unsigned _idCodeSize : 5; // the instruction(s) size of this instrDesc described.
-#elif defined(TARGET_RISCV64)
+#elif defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
         unsigned _idCodeSize : 6; // the instruction(s) size of this instrDesc described.
 #elif defined(TARGET_ARM64)
         static_assert_no_msg(IF_COUNT <= 1024);
@@ -684,6 +684,16 @@ protected:
         }
         void idInsFmt(insFormat insFmt)
         {
+        }
+#elif defined(TARGET_RISCV32)
+        insFormat idInsFmt() const
+        {
+            NYI_RISCV32("idInsFmt-----unimplemented on RISCV32 yet----");
+            return (insFormat)0;
+        }
+        void idInsFmt(insFormat insFmt)
+        {
+            NYI_RISCV32("idInsFmt-----unimplemented on RISCV32 yet----");
         }
 #elif defined(TARGET_RISCV64)
         insFormat idInsFmt() const
@@ -728,11 +738,11 @@ protected:
 #elif defined(TARGET_ARM64)
         opSize  _idOpSize : 3; // operand size: 0=1 , 1=2 , 2=4 , 3=8, 4=16
         insOpts _idInsOpt : 6; // options for instructions
-#elif defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#elif defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
 /* _idOpSize defined below. */
 #else
         opSize _idOpSize : 2; // operand size: 0=1 , 1=2 , 2=4 , 3=8
-#endif // TARGET_ARM64 || TARGET_LOONGARCH64 || TARGET_RISCV64
+#endif // TARGET_ARM64 || TARGET_LOONGARCH64 || TARGET_RISCV32 || TARGET_RISCV64
 
         // On Amd64, this is where the second DWORD begins
         // On System V a call could return a struct in 2 registers. The instrDescCGCA struct below has  member that
@@ -825,6 +835,13 @@ protected:
         unsigned _idLclVar : 1; // access a local on stack.
 #endif
 
+#ifdef TARGET_RISCV32
+        // TODO-RISCV32: maybe delete on future
+        opSize   _idOpSize : 3; // operand size: 0=1 , 1=2 , 2=4 , 3=8, 4=16
+        insOpts  _idInsOpt : 6; // options for instructions
+        unsigned _idLclVar : 1; // access a local on stack
+#endif
+
 #ifdef TARGET_RISCV64
         // TODO-RISCV64: maybe delete on future
         opSize   _idOpSize : 3; // operand size: 0=1 , 1=2 , 2=4 , 3=8, 4=16
@@ -858,7 +875,7 @@ protected:
 #define ID_EXTRA_BITFIELD_BITS (16)
 #elif defined(TARGET_ARM64)
 #define ID_EXTRA_BITFIELD_BITS (23)
-#elif defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#elif defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
 #define ID_EXTRA_BITFIELD_BITS (14)
 #elif defined(TARGET_XARCH)
 #define ID_EXTRA_BITFIELD_BITS (17)
@@ -1057,6 +1074,23 @@ protected:
                 return iiaJmpOffset;
             }
 
+#elif defined(TARGET_RISCV32)
+            struct
+            {
+                regNumber    _idReg3 : REGNUM_BITS;
+                regNumber    _idReg4 : REGNUM_BITS;
+                unsigned int iiaEncodedInstr; // instruction's binary encoding.
+            };
+
+            void iiaSetInstrEncode(unsigned int encode)
+            {
+                iiaEncodedInstr = encode;
+            }
+            unsigned int iiaGetInstrEncode() const
+            {
+                return iiaEncodedInstr;
+            }
+
 #elif defined(TARGET_RISCV64)
             struct
             {
@@ -1187,6 +1221,18 @@ protected:
             // LoongArch64's instrDesc is not always meaning only one instruction.
             // e.g. the `emitter::emitIns_I_la` for emitting the immediates.
             assert(sz <= 16);
+            _idCodeSize = sz;
+        }
+#elif defined(TARGET_RISCV32)
+        unsigned idCodeSize() const
+        {
+            return _idCodeSize;
+        }
+        void idCodeSize(unsigned sz)
+        {
+            // RISCV32's instrDesc is not always meaning only one instruction.
+            // e.g. the `emitter::emitLoadImmediate` for emitting the immediates.
+            assert(sz <= 32);
             _idCodeSize = sz;
         }
 #elif defined(TARGET_RISCV64)
@@ -1539,6 +1585,42 @@ protected:
 
 #endif // TARGET_LOONGARCH64
 
+#ifdef TARGET_RISCV32
+        insOpts idInsOpt() const
+        {
+            return (insOpts)_idInsOpt;
+        }
+        void idInsOpt(insOpts opt)
+        {
+            _idInsOpt = opt;
+            assert(opt == _idInsOpt);
+        }
+
+        regNumber idReg3() const
+        {
+            assert(!idIsSmallDsc());
+            return idAddr()->_idReg3;
+        }
+        void idReg3(regNumber reg)
+        {
+            assert(!idIsSmallDsc());
+            idAddr()->_idReg3 = reg;
+            assert(reg == idAddr()->_idReg3);
+        }
+        regNumber idReg4() const
+        {
+            assert(!idIsSmallDsc());
+            return idAddr()->_idReg4;
+        }
+        void idReg4(regNumber reg)
+        {
+            assert(!idIsSmallDsc());
+            idAddr()->_idReg4 = reg;
+            assert(reg == idAddr()->_idReg4);
+        }
+
+#endif // TARGET_RISCV32
+
 #ifdef TARGET_RISCV64
         insOpts idInsOpt() const
         {
@@ -1818,6 +1900,17 @@ protected:
         }
 #endif // TARGET_LOONGARCH64
 
+#ifdef TARGET_RISCV32
+        bool idIsLclVar() const
+        {
+            return _idLclVar != 0;
+        }
+        void idSetIsLclVar()
+        {
+            _idLclVar = 1;
+        }
+#endif // TARGET_RISCV32
+
 #ifdef TARGET_RISCV64
         bool idIsLclVar() const
         {
@@ -2012,6 +2105,23 @@ protected:
 #define PERFSCORE_LATENCY_RD_WR_GENERAL    PERFSCORE_LATENCY_4C
 
 #elif defined(TARGET_LOONGARCH64)
+// a read,write or modify from stack location, possible def to use latency from L0 cache
+#define PERFSCORE_LATENCY_RD_STACK         PERFSCORE_LATENCY_3C
+#define PERFSCORE_LATENCY_WR_STACK         PERFSCORE_LATENCY_1C
+#define PERFSCORE_LATENCY_RD_WR_STACK      PERFSCORE_LATENCY_3C
+
+// a read, write or modify from constant location, possible def to use latency from L0 cache
+#define PERFSCORE_LATENCY_RD_CONST_ADDR    PERFSCORE_LATENCY_3C
+#define PERFSCORE_LATENCY_WR_CONST_ADDR    PERFSCORE_LATENCY_1C
+#define PERFSCORE_LATENCY_RD_WR_CONST_ADDR PERFSCORE_LATENCY_3C
+
+// a read, write or modify from memory location, possible def to use latency from L0 or L1 cache
+// plus an extra cost  (of 1.0) for a increased chance  of a cache miss
+#define PERFSCORE_LATENCY_RD_GENERAL       PERFSCORE_LATENCY_4C
+#define PERFSCORE_LATENCY_WR_GENERAL       PERFSCORE_LATENCY_1C
+#define PERFSCORE_LATENCY_RD_WR_GENERAL    PERFSCORE_LATENCY_4C
+
+#elif defined(TARGET_RISCV32)
 // a read,write or modify from stack location, possible def to use latency from L0 cache
 #define PERFSCORE_LATENCY_RD_STACK         PERFSCORE_LATENCY_3C
 #define PERFSCORE_LATENCY_WR_STACK         PERFSCORE_LATENCY_1C
@@ -2517,9 +2627,9 @@ public:
 #endif // defined(TARGET_X86)
 #endif // !defined(HOST_64BIT)
 
-#if defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
     unsigned int emitCounts_INS_OPTS_J;
-#endif // TARGET_LOONGARCH64 || TARGET_RISCV64
+#endif // TARGET_LOONGARCH64 || TARGET_RISCV32 || TARGET_RISCV64
 
     instrDesc* emitFirstInstrDesc(BYTE* idData) const;
     void       emitAdvanceInstrDesc(instrDesc** id, size_t idSize) const;
@@ -2641,7 +2751,7 @@ private:
     // EMITTER_STATS output for various statistics related to this.
     //
 
-#if defined(TARGET_ARMARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARMARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
 // ARM32/64, LoongArch and RISC-V can require a bigger prolog instruction group. One scenario
 // is where a function uses all the incoming integer and single-precision floating-point arguments,
 // and must store them all to the frame on entry. If the frame is very large, we generate
@@ -2660,7 +2770,7 @@ private:
 #else
 #define SC_IG_BUFFER_NUM_SMALL_DESCS 14
 #define SC_IG_BUFFER_NUM_LARGE_DESCS 50
-#endif // !(TARGET_ARMARCH || TARGET_LOONGARCH64 || TARGET_RISCV64)
+#endif // !(TARGET_ARMARCH || TARGET_LOONGARCH64 || TARGET_RISCV32 || TARGET_RISCV64)
 
     size_t emitIGbuffSize;
 
@@ -2963,7 +3073,7 @@ private:
     void        emitPrintLabel(const insGroup* ig) const;
     const char* emitLabelString(const insGroup* ig) const;
 
-#if defined(TARGET_ARMARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARMARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
 
     void emitGetInstrDescs(insGroup* ig, instrDesc** id, int* insCnt);
 
@@ -3216,6 +3326,9 @@ public:
     // Returns "true" if instruction "id->idIns()" writes to a LclVar stack slot pair.
     bool emitInsWritesToLclVarStackLocPair(instrDesc* id);
 #elif defined(TARGET_LOONGARCH64)
+    bool emitInsMayWriteToGCReg(instruction ins);
+    bool emitInsWritesToLclVarStackLoc(instrDesc* id);
+#elif defined(TARGET_RISCV32)
     bool emitInsMayWriteToGCReg(instruction ins);
     bool emitInsWritesToLclVarStackLoc(instrDesc* id);
 #elif defined(TARGET_RISCV64)

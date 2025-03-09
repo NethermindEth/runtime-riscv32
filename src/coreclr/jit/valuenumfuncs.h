@@ -200,6 +200,9 @@ ValueNumFuncDef(HWI_##isa##_##name, ((argCount == -1) ? -1 : (argCount + 1)), ((
 #elif defined (TARGET_LOONGARCH64)
     //TODO-LOONGARCH64-CQ: add LoongArch64's Hardware Intrinsics Instructions if supported.
 
+#elif defined (TARGET_RISCV32)
+    //TODO-RISCV64-CQ: add RISCV64's Hardware Intrinsics Instructions if supported.
+
 #elif defined (TARGET_RISCV64)
     //TODO-RISCV64-CQ: add RISCV64's Hardware Intrinsics Instructions if supported.
 

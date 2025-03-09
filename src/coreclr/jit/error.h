@@ -166,6 +166,7 @@ extern void notYetImplemented(const char* msg, const char* file, unsigned line);
 #define NYI_ARM(msg)    do { } while (0)
 #define NYI_ARM64(msg)  do { } while (0)
 #define NYI_LOONGARCH64(msg) do { } while (0)
+#define NYI_RISCV32(msg) do { } while (0)
 #define NYI_RISCV64(msg) do { } while (0)
 
 #elif defined(TARGET_X86)
@@ -175,6 +176,7 @@ extern void notYetImplemented(const char* msg, const char* file, unsigned line);
 #define NYI_ARM(msg)    do { } while (0)
 #define NYI_ARM64(msg)  do { } while (0)
 #define NYI_LOONGARCH64(msg) do { } while (0)
+#define NYI_RISCV32(msg) do { } while (0)
 #define NYI_RISCV64(msg) do { } while (0)
 
 #elif defined(TARGET_ARM)
@@ -184,6 +186,7 @@ extern void notYetImplemented(const char* msg, const char* file, unsigned line);
 #define NYI_ARM(msg)    NYIRAW("NYI_ARM: " msg)
 #define NYI_ARM64(msg)  do { } while (0)
 #define NYI_LOONGARCH64(msg) do { } while (0)
+#define NYI_RISCV32(msg) do { } while (0)
 #define NYI_RISCV64(msg) do { } while (0)
 
 #elif defined(TARGET_ARM64)
@@ -193,6 +196,7 @@ extern void notYetImplemented(const char* msg, const char* file, unsigned line);
 #define NYI_ARM(msg)    do { } while (0)
 #define NYI_ARM64(msg)  NYIRAW("NYI_ARM64: " msg)
 #define NYI_LOONGARCH64(msg) do { } while (0)
+#define NYI_RISCV32(msg) do { } while (0)
 #define NYI_RISCV64(msg) do { } while (0)
 
 #elif defined(TARGET_LOONGARCH64)
@@ -201,6 +205,16 @@ extern void notYetImplemented(const char* msg, const char* file, unsigned line);
 #define NYI_ARM(msg)    do { } while (0)
 #define NYI_ARM64(msg)  do { } while (0)
 #define NYI_LOONGARCH64(msg) NYIRAW("NYI_LOONGARCH64: " msg)
+#define NYI_RISCV32(msg) do { } while (0)
+#define NYI_RISCV64(msg) do { } while (0)
+
+#elif defined(TARGET_RISCV32)
+#define NYI_AMD64(msg)  do { } while (0)
+#define NYI_X86(msg)    do { } while (0)
+#define NYI_ARM(msg)    do { } while (0)
+#define NYI_ARM64(msg)  do { } while (0)
+#define NYI_LOONGARCH64(msg) do { } while (0)
+#define NYI_RISCV32(msg) NYIRAW("NYI_RISCV32: " msg)
 #define NYI_RISCV64(msg) do { } while (0)
 
 #elif defined(TARGET_RISCV64)
@@ -209,11 +223,12 @@ extern void notYetImplemented(const char* msg, const char* file, unsigned line);
 #define NYI_ARM(msg)    do { } while (0)
 #define NYI_ARM64(msg)  do { } while (0)
 #define NYI_LOONGARCH64(msg) do { } while (0)
+#define NYI_RISCV32(msg) do { } while (0)
 #define NYI_RISCV64(msg) NYIRAW("NYI_RISCV64: " msg)
 
 #else
 
-#error "Unknown platform, not x86, ARM, LOONGARCH64, AMD64, or RISCV64?"
+#error "Unknown platform, not x86, ARM, LOONGARCH64, AMD64, RISCV64, or RISCV32?"
 
 #endif
 
