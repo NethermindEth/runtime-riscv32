@@ -627,6 +627,7 @@ namespace ILCompiler.Reflection.ReadyToRun
                 case Machine.Arm:
                 case Machine.Thumb:
                 case Machine.ArmThumb2:
+                case Machine.RiscV32:
                     _pointerSize = 4;
                     break;
 
@@ -1411,6 +1412,7 @@ namespace ILCompiler.Reflection.ReadyToRun
                     {
                         case Machine.I386:
                         case Machine.ArmThumb2:
+                        case Machine.RiscV32:
                             entrySize = 4;
                             break;
 

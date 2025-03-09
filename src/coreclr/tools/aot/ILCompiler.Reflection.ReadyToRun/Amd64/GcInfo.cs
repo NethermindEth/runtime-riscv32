@@ -270,6 +270,14 @@ namespace ILCompiler.Reflection.ReadyToRun.Amd64
                 }
                 sb.AppendLine($"    Has Tailcalls: {_wantsReportOnlyLeaf}");
             }
+            else if (_machine == Machine.RiscV32)
+            {
+                if (StackBaseRegister != 0xffffffff)
+                {
+                    sb.AppendLine($"    StackBaseRegister: {(RiscV32.Registers)StackBaseRegister}");
+                }
+                sb.AppendLine($"    Has Tailcalls: {_wantsReportOnlyLeaf}");
+            }
             else if (_machine == Machine.RiscV64)
             {
                 if (StackBaseRegister != 0xffffffff)

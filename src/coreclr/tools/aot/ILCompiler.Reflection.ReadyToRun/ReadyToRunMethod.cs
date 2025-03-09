@@ -229,6 +229,10 @@ namespace ILCompiler.Reflection.ReadyToRun
             {
                 return (int)loongarch64Info.FunctionLength;
             }
+            else if (UnwindInfo is RiscV32.UnwindInfo riscv32Info)
+            {
+                return (int)riscv32Info.FunctionLength;
+            }
             else if (UnwindInfo is RiscV64.UnwindInfo riscv64Info)
             {
                 return (int)riscv64Info.FunctionLength;
@@ -496,7 +500,7 @@ namespace ILCompiler.Reflection.ReadyToRun
                     }
                     else
                     {
-                        // Arm, Arm64, LoongArch64 and RISCV64 use the same GcInfo format as Amd64
+                        // Arm, Arm64, LoongArch64, RISCV32 and RISCV64 use the same GcInfo format as Amd64
                         _gcInfo = new Amd64.GcInfo(
                             _readyToRunReader.Image,
                             gcInfoOffset,
@@ -620,6 +624,10 @@ namespace ILCompiler.Reflection.ReadyToRun
                 else if (_readyToRunReader.Machine == Machine.LoongArch64)
                 {
                     unwindInfo = new LoongArch64.UnwindInfo(_readyToRunReader.Image, unwindOffset);
+                }
+                else if (_readyToRunReader.Machine == Machine.RiscV32)
+                {
+                    unwindInfo = new RiscV32.UnwindInfo(_readyToRunReader.Image, unwindOffset);
                 }
                 else if (_readyToRunReader.Machine == Machine.RiscV64)
                 {

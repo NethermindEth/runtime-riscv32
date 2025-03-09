@@ -156,6 +156,10 @@ namespace ILCompiler.Reflection.ReadyToRun
                     STACK_BASE_REGISTER_ENCBASE = 2;
                     NUM_REGISTERS_ENCBASE = 3;
                     break;
+                case Machine.RiscV32:
+                    SIZE_OF_RETURN_KIND_FAT = 4;
+                    STACK_BASE_REGISTER_ENCBASE = 2;
+                    NUM_REGISTERS_ENCBASE = 3;
                 case Machine.RiscV64:
                     SIZE_OF_RETURN_KIND_FAT = 4;
                     STACK_BASE_REGISTER_ENCBASE = 2;
@@ -172,6 +176,7 @@ namespace ILCompiler.Reflection.ReadyToRun
                     return (x << 1);
                 case Machine.Arm64:
                 case Machine.LoongArch64:
+                case Machine.RiscV32:
                 case Machine.RiscV64:
                     return (x << 2);
             }
@@ -186,6 +191,7 @@ namespace ILCompiler.Reflection.ReadyToRun
                     return (x >> 1);
                 case Machine.Arm64:
                 case Machine.LoongArch64:
+                case Machine.RiscV32:
                 case Machine.RiscV64:
                     return (x >> 2);
             }
@@ -216,6 +222,7 @@ namespace ILCompiler.Reflection.ReadyToRun
                     return (x << 2);
                 case Machine.Arm64:
                 case Machine.LoongArch64:
+                case Machine.RiscV32:
                 case Machine.RiscV64:
                     return (x << 3);
             }
@@ -234,6 +241,7 @@ namespace ILCompiler.Reflection.ReadyToRun
                     return (x ^ 29);
                 case Machine.LoongArch64:
                     return ((x ^ 22) & 0x3);
+                case Machine.RiscV32:
                 case Machine.RiscV64:
                     return (x ^ 8);
             }
@@ -250,6 +258,7 @@ namespace ILCompiler.Reflection.ReadyToRun
                     return (x << 2);
                 case Machine.Arm64:
                 case Machine.LoongArch64:
+                case Machine.RiscV32:
                 case Machine.RiscV64:
                     return (x << 3);
             }
