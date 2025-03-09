@@ -345,11 +345,66 @@ inline TADDR GetRegdisplayStackMark(REGDISPLAY *display) {
     return GetSP(display->pCallerContext);
 }
 
+#elif defined(TARGET_RISCV32)
+typedef struct _RiscV32VolatileContextPointer
+{
+    PDWORD R0;
+    PDWORD A0;
+    PDWORD A1;
+    PDWORD A2;
+    PDWORD A3;
+    PDWORD A4;
+    PDWORD A5;
+    PDWORD A6;
+    PDWORD A7;
+    PDWORD T0;
+    PDWORD T1;
+    PDWORD T2;
+    PDWORD T3;
+    PDWORD T4;
+    PDWORD T5;
+    PDWORD T6;
+} RiscV32VolatileContextPointer;
+
+struct REGDISPLAY : public REGDISPLAY_BASE {
+    RiscV32VolatileContextPointer volatileCurrContextPointers;
+
+    REGDISPLAY()
+    {
+        // Initialize regdisplay
+        memset(this, 0, sizeof(REGDISPLAY));
+    }
+};
+
+inline TADDR GetRegdisplayFP(REGDISPLAY *display) {
+    LIMITED_METHOD_CONTRACT;
+    return 0;
+}
+
+inline TADDR GetRegdisplayFPAddress(REGDISPLAY *display) {
+    LIMITED_METHOD_CONTRACT;
+    return 0;
+}
+
+// This function tells us if the given stack pointer is in one of the frames of the functions called by the given frame
+inline BOOL IsInCalleesFrames(REGDISPLAY *display, LPVOID stackPointer)
+{
+    LIMITED_METHOD_CONTRACT;
+    return stackPointer < ((LPVOID)(display->SP));
+}
+
+inline TADDR GetRegdisplayStackMark(REGDISPLAY *display) {
+    LIMITED_METHOD_CONTRACT;
+    // ARM uses the establisher frame as the marker
+    _ASSERTE(display->IsCallerContextValid);
+    return GetSP(display->pCallerContext);
+}
+
 #else // none of the above processors
 #error "RegDisplay functions are not implemented on this platform."
 #endif
 
-#if defined(TARGET_64BIT) || defined(TARGET_ARM) || (defined(TARGET_X86) && defined(FEATURE_EH_FUNCLETS))
+#if defined(TARGET_64BIT) || defined(TARGET_ARM) || defined(TARGET_RISCV32) || (defined(TARGET_X86) && defined(FEATURE_EH_FUNCLETS))
 // This needs to be implemented for platforms that have funclets.
 inline LPVOID GetRegdisplayReturnValue(REGDISPLAY *display)
 {
@@ -364,6 +419,8 @@ inline LPVOID GetRegdisplayReturnValue(REGDISPLAY *display)
 #elif defined(TARGET_X86)
     return (LPVOID)display->pCurrentContext->Eax;
 #elif defined(TARGET_LOONGARCH64)
+    return (LPVOID)display->pCurrentContext->A0;
+#elif defined(TARGET_RISCV32)
     return (LPVOID)display->pCurrentContext->A0;
 #elif defined(TARGET_RISCV64)
     return (LPVOID)display->pCurrentContext->A0;
@@ -386,6 +443,9 @@ inline void SyncRegDisplayToCurrentContext(REGDISPLAY* pRD)
 #elif defined(TARGET_X86)
     pRD->SP         = (DWORD)GetSP(pRD->pCurrentContext);
     pRD->ControlPC  = (DWORD)GetIP(pRD->pCurrentContext);
+#elif defined(TARGET_RISCV32)
+    pRD->SP         = (INT_PTR)GetSP(pRD->pCurrentContext);
+    pRD->ControlPC  = (INT_PTR)GetIP(pRD->pCurrentContext);
 #else // TARGET_X86
     PORTABILITY_ASSERT("SyncRegDisplayToCurrentContext");
 #endif
@@ -434,7 +494,23 @@ inline void FillContextPointers(PT_KNONVOLATILE_CONTEXT_POINTERS pCtxPtrs, PT_CO
     {
         *(&pCtxPtrs->Edi + i) = (&pCtx->Edi + i);
     }
-#elif defined(TARGET_RISCV64) // TARGET_X86
+#elif defined(TARGET_RISCV32) // TARGET_X86
+    *(&pCtxPtrs->S1) = &pCtx->S1;
+    *(&pCtxPtrs->S2) = &pCtx->S2;
+    *(&pCtxPtrs->S3) = &pCtx->S3;
+    *(&pCtxPtrs->S4) = &pCtx->S4;
+    *(&pCtxPtrs->S5) = &pCtx->S5;
+    *(&pCtxPtrs->S6) = &pCtx->S6;
+    *(&pCtxPtrs->S7) = &pCtx->S7;
+    *(&pCtxPtrs->S8) = &pCtx->S8;
+    *(&pCtxPtrs->S9) = &pCtx->S9;
+    *(&pCtxPtrs->S10) = &pCtx->S10;
+    *(&pCtxPtrs->S11) = &pCtx->S11;
+    *(&pCtxPtrs->Gp) = &pCtx->Gp;
+    *(&pCtxPtrs->Tp) = &pCtx->Tp;
+    *(&pCtxPtrs->Fp) = &pCtx->Fp;
+    *(&pCtxPtrs->Ra) = &pCtx->Ra;
+#elif defined(TARGET_RISCV64) // TARGET_RISCV32
     *(&pCtxPtrs->S1) = &pCtx->S1;
     *(&pCtxPtrs->S2) = &pCtx->S2;
     *(&pCtxPtrs->S3) = &pCtx->S3;
@@ -557,7 +633,23 @@ inline void FillRegDisplay(const PREGDISPLAY pRD, PT_CONTEXT pctx, PT_CONTEXT pC
     pRD->volatileCurrContextPointers.T7 = &pctx->T7;
     pRD->volatileCurrContextPointers.T8 = &pctx->T8;
     pRD->volatileCurrContextPointers.X0 = &pctx->X0;
-#elif defined(TARGET_RISCV64) // TARGET_LOONGARCH64
+#elif defined(TARGET_RISCV32) // TARGET_LOONGARCH64
+    pRD->volatileCurrContextPointers.A0 = &pctx->A0;
+    pRD->volatileCurrContextPointers.A1 = &pctx->A1;
+    pRD->volatileCurrContextPointers.A2 = &pctx->A2;
+    pRD->volatileCurrContextPointers.A3 = &pctx->A3;
+    pRD->volatileCurrContextPointers.A4 = &pctx->A4;
+    pRD->volatileCurrContextPointers.A5 = &pctx->A5;
+    pRD->volatileCurrContextPointers.A6 = &pctx->A6;
+    pRD->volatileCurrContextPointers.A7 = &pctx->A7;
+    pRD->volatileCurrContextPointers.T0 = &pctx->T0;
+    pRD->volatileCurrContextPointers.T1 = &pctx->T1;
+    pRD->volatileCurrContextPointers.T2 = &pctx->T2;
+    pRD->volatileCurrContextPointers.T3 = &pctx->T3;
+    pRD->volatileCurrContextPointers.T4 = &pctx->T4;
+    pRD->volatileCurrContextPointers.T5 = &pctx->T5;
+    pRD->volatileCurrContextPointers.T6 = &pctx->T6;
+#elif defined(TARGET_RISCV64) // TARGET_RISCV32
     pRD->volatileCurrContextPointers.A0 = &pctx->A0;
     pRD->volatileCurrContextPointers.A1 = &pctx->A1;
     pRD->volatileCurrContextPointers.A2 = &pctx->A2;
@@ -648,6 +740,9 @@ inline size_t * getRegAddr (unsigned regNum, PTR_CONTEXT regs)
     _ASSERTE(regNum < 31);
     return (size_t *)&regs->X0 + regNum;
 #elif defined(TARGET_LOONGARCH64)
+    _ASSERTE(regNum < 32);
+    return (size_t *)&regs->R0 + regNum;
+#elif defined(TARGET_RISCV32)
     _ASSERTE(regNum < 32);
     return (size_t *)&regs->R0 + regNum;
 #elif defined(TARGET_RISCV64)

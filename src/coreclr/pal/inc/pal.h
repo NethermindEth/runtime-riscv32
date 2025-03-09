@@ -2728,7 +2728,7 @@ PALIMPORT BOOL PALAPI PAL_GetUnwindInfoSize(SIZE_T baseAddress, ULONG64 ehFrameH
 #elif defined(__linux__) && defined(__riscv) && __riscv_xlen == 64
 #define PAL_CS_NATIVE_DATA_SIZE 96
 #elif defined(__linux__) && defined(__riscv) && __riscv_xlen == 32
-#define PAL_CS_NATIVE_DATA_SIZE 80
+#define PAL_CS_NATIVE_DATA_SIZE 96
 #elif defined(__HAIKU__) && defined(__x86_64__)
 #define PAL_CS_NATIVE_DATA_SIZE 56
 #else
@@ -3512,12 +3512,28 @@ Define_InterlockMethod(
     __sync_add_and_fetch(lpAddend, value)
 )
 
+#ifdef HOST_RISCV32
+
+inline LONGLONG InterlockedAdd64(IN OUT LONGLONG volatile *lpAddend, IN LONGLONG value)
+{
+    LONGLONG Old;
+
+    Old = *lpAddend;
+    Old += value;
+    *lpAddend = Old;
+    return Old;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedAdd64(IN OUT LONGLONG volatile *lpAddend, IN LONGLONG value),
     InterlockedAdd64(lpAddend, value),
     __sync_add_and_fetch(lpAddend, value)
 )
+
+#endif
 
 /*++
 Function:
@@ -3545,12 +3561,30 @@ Define_InterlockMethod(
     __sync_add_and_fetch(lpAddend, (LONG)1)
 )
 
+#if defined(HOST_RISCV32)
+
+inline LONGLONG InterlockedIncrement64(IN OUT LONGLONG volatile *lpAddend)
+{
+    LONGLONG Old;
+
+    Old = *lpAddend;
+    Old++;
+    *lpAddend = Old;
+    return Old;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedIncrement64(IN OUT LONGLONG volatile *lpAddend),
     InterlockedIncrement64(lpAddend),
     __sync_add_and_fetch(lpAddend, (LONGLONG)1)
 )
+
+#endif
+
+
 
 /*++
 Function:
@@ -3580,12 +3614,29 @@ Define_InterlockMethod(
 
 #define InterlockedDecrementRelease InterlockedDecrement
 
+#ifdef HOST_RISCV32
+
+inline LONGLONG InterlockedDecrement64(IN OUT LONGLONG volatile *lpAddend)
+{
+    LONGLONG Old;
+
+    Old = *lpAddend;
+    Old--;
+    *lpAddend = Old;
+    return Old;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedDecrement64(IN OUT LONGLONG volatile *lpAddend),
     InterlockedDecrement64(lpAddend),
     __sync_sub_and_fetch(lpAddend, (LONGLONG)1)
 )
+
+#endif
+
 
 /*++
 Function:
@@ -3628,6 +3679,17 @@ inline LONGLONG InterlockedExchange64(LONGLONG volatile * Target, LONGLONG Value
         Old = *Target;
     } while (__sync_val_compare_and_swap(Target, Old, Value) != Old);
 
+    return Old;
+}
+
+#elif defined(HOST_RISCV32)
+
+inline LONGLONG InterlockedExchange64(IN OUT LONGLONG volatile *lpAddend, IN LONGLONG value)
+{
+    LONGLONG Old;
+
+    Old = *lpAddend;
+    *lpAddend = value;
     return Old;
 }
 
@@ -3679,6 +3741,21 @@ Define_InterlockMethod(
 #define InterlockedCompareExchangeAcquire InterlockedCompareExchange
 #define InterlockedCompareExchangeRelease InterlockedCompareExchange
 
+#if defined(HOST_RISCV32)
+
+inline LONGLONG InterlockedCompareExchange64(IN OUT LONGLONG volatile *Destination, IN LONGLONG Exchange, IN LONGLONG Comperand)
+{
+    LONGLONG Original;
+
+    Original = *Destination;
+    if (Original == Comperand) {
+        *Destination = Exchange;
+    }
+    return Original;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedCompareExchange64(IN OUT LONGLONG volatile *Destination, IN LONGLONG Exchange, IN LONGLONG Comperand),
@@ -3688,6 +3765,8 @@ Define_InterlockMethod(
         Comperand, /* The value to be compared */
         Exchange /* The value to be stored */)
 )
+
+#endif
 
 /*++
 Function:
@@ -3713,12 +3792,28 @@ Define_InterlockMethod(
     __sync_fetch_and_add(Addend, Value)
 )
 
+#if defined(HOST_RISCV32)
+
+inline LONGLONG InterlockedExchangeAdd64(IN OUT LONGLONG volatile *Addend, IN LONGLONG Value)
+{
+    LONGLONG Old;
+
+    Old = *Addend;
+    *Addend = Old + Value;
+
+    return Old;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedExchangeAdd64(IN OUT LONGLONG volatile *Addend, IN LONGLONG Value),
     InterlockedExchangeAdd64(Addend, Value),
     __sync_fetch_and_add(Addend, Value)
 )
+
+#endif
 
 Define_InterlockMethod(
     LONG,
@@ -3780,6 +3875,9 @@ YieldProcessor()
     __asm__ __volatile__( "yield");
 #elif defined(HOST_LOONGARCH64)
     __asm__ volatile( "dbar 0;  \n");
+#elif defined(HOST_RISCV32)
+    // TODO-RISCV32-CQ: When Zihintpause is supported, replace with `pause` instruction.
+    __asm__ __volatile__(".word 0x0100000f");
 #elif defined(HOST_RISCV64)
     // TODO-RISCV64-CQ: When Zihintpause is supported, replace with `pause` instruction.
     __asm__ __volatile__(".word 0x0100000f");
