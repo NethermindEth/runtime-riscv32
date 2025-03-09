@@ -18,13 +18,13 @@ NESTED_ENTRY FuncEvalHijack, _TEXT, UnhandledExceptionHandlerUnix
 
     // push arg to the stack so our personality routine can find it
     // push ra to get good stacktrace in debugger
-    PROLOG_SAVE_REG_PAIR_INDEXED  fp, ra, 32
-    sd  a0, 16(sp)
+    PROLOG_SAVE_REG_PAIR_INDEXED  fp, ra, 16
+    sw  a0, 8(sp)
 
     // FuncEvalHijackWorker returns the address we should jump to.
     call C_FUNC(FuncEvalHijackWorker)
 
-    EPILOG_STACK_FREE  32
+    EPILOG_STACK_FREE  16
     EPILOG_BRANCH_REG  a0
 NESTED_END FuncEvalHijack
 

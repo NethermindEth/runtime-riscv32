@@ -37,7 +37,7 @@ inline uint64_t BitExtract(uint64_t value, unsigned int highbit, unsigned int lo
     return signExtend ? SignExtend(extractedValue, highbit - lowbit) : extractedValue;
 }
 
-uint64_t NativeWalker::GetReg(uint64_t reg)
+uint64_t NativeWalker::GetReg(DWORD reg)
 {
     _ASSERTE(reg <= 31);
     _ASSERTE(m_registers->pCurrentContext->R0 == 0);
