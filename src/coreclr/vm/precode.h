@@ -45,6 +45,11 @@ EXTERN_C VOID STDCALL PrecodeRemotingThunk();
 #define OFFSETOF_PRECODE_TYPE       0
 #define SHIFTOF_PRECODE_TYPE        5
 
+#elif defined(TARGET_RISCV32)
+
+#define SIZEOF_PRECODE_BASE         CODE_SIZE_ALIGN
+#define OFFSETOF_PRECODE_TYPE       0
+
 #elif defined(TARGET_RISCV64)
 
 #define SIZEOF_PRECODE_BASE         CODE_SIZE_ALIGN
@@ -68,6 +73,8 @@ struct InvalidPrecode
 #elif defined(TARGET_ARM64) || defined(TARGET_ARM)
     static const int Type = 0;
 #elif defined(TARGET_LOONGARCH64)
+    static const int Type = 0xff;
+#elif defined(TARGET_RISCV32)
     static const int Type = 0xff;
 #elif defined(TARGET_RISCV64)
     static const int Type = 0xff;
@@ -109,6 +116,9 @@ struct StubPrecode
     static const SIZE_T CodeSize = 12;
 #elif defined(TARGET_LOONGARCH64)
     static const int Type = 0x4;
+    static const SIZE_T CodeSize = 24;
+#elif defined(TARGET_RISCV32)
+    static const int Type = 0x17;
     static const SIZE_T CodeSize = 24;
 #elif defined(TARGET_RISCV64)
     static const int Type = 0x17;
@@ -280,6 +290,10 @@ struct FixupPrecode
     static const int Type = 0x3;
     static const SIZE_T CodeSize = 32;
     static const int FixupCodeOffset = 12;
+#elif defined(TARGET_RISCV32)
+    static const int Type = 0x97;
+    static const SIZE_T CodeSize = 32;
+    static const int FixupCodeOffset = 10;
 #elif defined(TARGET_RISCV64)
     static const int Type = 0x97;
     static const SIZE_T CodeSize = 32;
@@ -480,6 +494,9 @@ public:
         static_assert(5 == SHIFTOF_PRECODE_TYPE, "expected shift of 5");
         short type = *((short*)m_data);
         type >>= SHIFTOF_PRECODE_TYPE;
+#elif defined(TARGET_RISCV32)
+        assert(0 == OFFSETOF_PRECODE_TYPE);
+        BYTE type = *((BYTE*)m_data + OFFSETOF_PRECODE_TYPE);
 #elif defined(TARGET_RISCV64)
         assert(0 == OFFSETOF_PRECODE_TYPE);
         BYTE type = *((BYTE*)m_data + OFFSETOF_PRECODE_TYPE);

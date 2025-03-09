@@ -92,6 +92,10 @@ typedef DPTR(GCCoverageInfo) PTR_GCCoverageInfo; // see code:GCCoverageInfo::sav
 // The following encodings are undefined.
 #define INTERRUPT_INSTR                 0xffffff0f
 
+#elif defined(TARGET_RISCV32)
+// The following encodings are undefined.
+#define INTERRUPT_INSTR                 0x20000000  // unimp, fld
+
 #elif defined(TARGET_RISCV64)
 // The following encodings are undefined.
 #define INTERRUPT_INSTR                 0x20000000  // unimp, fld

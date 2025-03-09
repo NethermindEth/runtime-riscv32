@@ -718,6 +718,9 @@ public:
 #elif defined(TARGET_LOONGARCH64)
             Object** firstIntReg = (Object**)&this->GetContext()->A0;
             Object** lastIntReg  = (Object**)&this->GetContext()->S8;
+#elif defined(TARGET_RISCV32)
+            Object** firstIntReg = (Object**)&this->GetContext()->Gp;
+            Object** lastIntReg  = (Object**)&this->GetContext()->T6;
 #elif defined(TARGET_RISCV64)
             Object** firstIntReg = (Object**)&this->GetContext()->Gp;
             Object** lastIntReg  = (Object**)&this->GetContext()->T6;
@@ -1701,7 +1704,7 @@ public:
     static BYTE GetOffsetOfArgs()
     {
         LIMITED_METHOD_DAC_CONTRACT;
-#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_RISCV64) || defined(TARGET_RISCV32)
         size_t ofs = offsetof(UnmanagedToManagedFrame, m_argumentRegisters);
 #else
         size_t ofs = sizeof(UnmanagedToManagedFrame);
@@ -1754,7 +1757,7 @@ protected:
     TADDR           m_ReturnAddress;
     TADDR           m_x8; // ret buff arg
     ArgumentRegisters m_argumentRegisters;
-#elif defined (TARGET_LOONGARCH64) || defined (TARGET_RISCV64)
+#elif defined (TARGET_LOONGARCH64) || defined (TARGET_RISCV64) || defined (TARGET_RISCV32)
     TADDR           m_fp;
     TADDR           m_ReturnAddress;
     ArgumentRegisters m_argumentRegisters;

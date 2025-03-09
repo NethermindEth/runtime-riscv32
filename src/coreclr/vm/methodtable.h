@@ -819,7 +819,7 @@ typedef DPTR(SystemVStructRegisterPassingHelper) SystemVStructRegisterPassingHel
 
 #endif // UNIX_AMD64_ABI_ITF
 
-#if defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64)
+#if defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32)
 // Bitfields for FpStructInRegistersInfo::flags
 namespace FpStruct
 {
@@ -873,7 +873,7 @@ struct FpStructInRegistersInfo
         }
     }
 };
-#endif // defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64)
+#endif // defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32)
 
 //===============================================================================================
 //
@@ -1129,7 +1129,7 @@ public:
     // during object construction.
     void CheckRunClassInitAsIfConstructingThrowing();
 
-#if defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64) || defined(TARGET_RISCV32)
     static FpStructInRegistersInfo GetFpStructInRegistersInfo(TypeHandle th);
 #endif
 
