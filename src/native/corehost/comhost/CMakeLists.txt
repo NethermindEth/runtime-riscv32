@@ -23,7 +23,7 @@ endif()
 add_compile_definitions(FEATURE_LIBHOST)
 add_compile_definitions(EXPORT_SHARED_API)
 
-add_library(comhost SHARED ${SOURCES})
+add_library(comhost STATIC ${SOURCES})
 
 add_version_info_to_target(comhost)
 

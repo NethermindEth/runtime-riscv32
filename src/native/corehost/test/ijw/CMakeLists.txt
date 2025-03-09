@@ -3,7 +3,7 @@
 
 include(${CLR_ENG_NATIVE_DIR}/ijw/IJW.cmake)
 
-add_library(ijw SHARED ijw.cpp)
+add_library(ijw STATIC ijw.cpp)
 target_link_libraries(ijw PRIVATE ijwhost)
 
 remove_ijw_incompatible_target_options(ijw)
