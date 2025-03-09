@@ -15,7 +15,7 @@ namespace System.Threading
         [Intrinsic]
         public static int CompareExchange(ref int location1, int value, int comparand)
         {
-#if TARGET_X86 || TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV64
+#if TARGET_X86 || TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV32 || TARGET_RISCV64
             return CompareExchange(ref location1, value, comparand); // Must expand intrinsic
 #else
             if (Unsafe.IsNullRef(ref location1))
@@ -34,7 +34,7 @@ namespace System.Threading
         [Intrinsic]
         internal static unsafe int CompareExchange(int* location1, int value, int comparand)
         {
-#if TARGET_X86 || TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV64
+#if TARGET_X86 || TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV32 || TARGET_RISCV64
             return CompareExchange(location1, value, comparand); // Must expand intrinsic
 #else
             Debug.Assert(location1 != null);
@@ -46,7 +46,7 @@ namespace System.Threading
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long CompareExchange(ref long location1, long value, long comparand)
         {
-#if TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV64
+#if TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV32 || TARGET_RISCV64
             return CompareExchange(ref location1, value, comparand); // Must expand intrinsic
 #else
             if (Unsafe.IsNullRef(ref location1))
@@ -72,7 +72,7 @@ namespace System.Threading
         [Intrinsic]
         public static int Exchange(ref int location1, int value)
         {
-#if TARGET_X86 || TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV64
+#if TARGET_X86 || TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV32 || TARGET_RISCV64
             return Exchange(ref location1, value); // Must expand intrinsic
 #else
             int oldValue;
@@ -89,7 +89,7 @@ namespace System.Threading
         [Intrinsic]
         public static long Exchange(ref long location1, long value)
         {
-#if TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV64
+#if TARGET_AMD64 || TARGET_ARM64 || TARGET_RISCV32 || TARGET_RISCV64
             return Exchange(ref location1, value); // Must expand intrinsic
 #else
             long oldValue;

@@ -551,7 +551,7 @@ struct PInvokeTransitionFrame
 #else // USE_PORTABLE_HELPERS
 struct PInvokeTransitionFrame
 {
-#if defined(TARGET_ARM64) || defined(TARGET_ARM) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISC32) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARM64) || defined(TARGET_ARM) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
     // The FP and LR registers are pushed in different order when setting up frames
     TgtPTR_Void     m_FramePointer;
     TgtPTR_Void     m_RIP;
@@ -563,7 +563,7 @@ struct PInvokeTransitionFrame
                                 // can be an invalid pointer in universal transition cases (which never need to call GetThread)
 #ifdef TARGET_ARM64
     uint64_t          m_Flags;  // PInvokeTransitionFrameFlags
-#elif TARGET_LOONGARCH64 || TARGET_RISCV64
+#elif TARGET_LOONGARCH64 || TARGET_RISCV32 || TARGET_RISCV64
     uint64_t          m_Flags;  // PInvokeTransitionFrameFlags
 #else
     uint32_t          m_Flags;  // PInvokeTransitionFrameFlags
