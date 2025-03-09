@@ -54,7 +54,7 @@ else(CLR_CMAKE_HOST_WIN32)
     set_exports_linker_option(${EXPORTS_FILE})
 endif(CLR_CMAKE_HOST_WIN32)
 
-add_library_clr(mscordbi SHARED ${MSCORDBI_SOURCES})
+add_library_clr(mscordbi STATIC ${MSCORDBI_SOURCES})
 set_target_properties(mscordbi PROPERTIES DBI_COMPONENT TRUE)
 target_precompile_headers(mscordbi PRIVATE $<$<COMPILE_LANGUAGE:CXX>:stdafx.h>)
 

@@ -53,6 +53,8 @@ else(CLR_CMAKE_HOST_WIN32)
 
         if (CLR_CMAKE_HOST_ARCH_ARM OR CLR_CMAKE_HOST_ARCH_ARM64 OR CLR_CMAKE_HOST_ARCH_LOONGARCH64)
             set(JUMP_INSTRUCTION b)
+        elseif (CLR_CMAKE_HOST_ARCH_RISCV32)
+            set(JUMP_INSTRUCTION tail)
         elseif (CLR_CMAKE_HOST_ARCH_RISCV64)
             set(JUMP_INSTRUCTION tail)
         else()
@@ -129,7 +131,7 @@ endif(CLR_CMAKE_HOST_WIN32)
 # mscordaccore on both the mscordaccore.exp and mscordac.obj.
 add_library_clr(mscordacobj OBJECT mscordac.cpp)
 
-add_library_clr(mscordaccore SHARED ${CLR_DAC_SOURCES} $<TARGET_OBJECTS:mscordacobj>)
+add_library_clr(mscordaccore STATIC ${CLR_DAC_SOURCES} $<TARGET_OBJECTS:mscordacobj>)
 
 set_target_properties(mscordacobj mscordaccore PROPERTIES DAC_COMPONENT TRUE)
 
