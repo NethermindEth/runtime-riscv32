@@ -46,6 +46,9 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
                 case TargetArchitecture.LoongArch64:
                     return LoongArch64TransitionBlock.Instance;
 
+                case TargetArchitecture.RiscV32:
+                    return RiscV32TransitionBlock.Instance;
+
                 case TargetArchitecture.RiscV64:
                     return RiscV64TransitionBlock.Instance;
 
@@ -67,6 +70,7 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
         public bool IsARM => Architecture == TargetArchitecture.ARM;
         public bool IsARM64 => Architecture == TargetArchitecture.ARM64;
         public bool IsLoongArch64 => Architecture == TargetArchitecture.LoongArch64;
+        public bool IsRiscV32 => Architecture == TargetArchitecture.RiscV32;
         public bool IsRiscV64 => Architecture == TargetArchitecture.RiscV64;
 
         /// <summary>
@@ -316,7 +320,7 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
                     throw new NotSupportedException();
 
                 case CorElementType.ELEMENT_TYPE_R4:
-                    if (IsRiscV64 || IsLoongArch64)
+                    if (IsRiscV32 || IsRiscV64 || IsLoongArch64)
                     {
                         fpReturnSize = (uint)FpStruct.OnlyOne | (2 << (int)FpStruct.PosSizeShift1st);
                     }
@@ -327,7 +331,7 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
                     break;
 
                 case CorElementType.ELEMENT_TYPE_R8:
-                    if (IsRiscV64 || IsLoongArch64)
+                    if (IsRiscV32 || IsRiscV64 || IsLoongArch64)
                     {
                         fpReturnSize = (uint)FpStruct.OnlyOne | (3 << (int)FpStruct.PosSizeShift1st);
                     }
@@ -398,7 +402,7 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
 
                             if (size <= EnregisteredReturnTypeIntegerMaxSize)
                             {
-                                if (IsLoongArch64 || IsRiscV64)
+                                if (IsLoongArch64 || IsRiscV32 || IsRiscV64)
                                 {
                                     FpStructInRegistersInfo info = RiscVLoongArch64FpStruct.GetFpStructInRegistersInfo(
                                         thRetType.GetRuntimeTypeHandle(), Architecture);
@@ -700,6 +704,44 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
             public override int StackElemSize(int parmSize, bool isValueType = false, bool isFloatHfa = false)
             {
                 int stackSlotSize = 8;
+                return ALIGN_UP(parmSize, stackSlotSize);
+            }
+        }
+
+        private class RiscV32TransitionBlock : TransitionBlock
+        {
+            public static TransitionBlock Instance = new RiscV32TransitionBlock();
+            public override TargetArchitecture Architecture => TargetArchitecture.RiscV32;
+            public override int PointerSize => 4;
+            // FIXME: fp size on riscv32
+            public override int FloatRegisterSize => 4;
+            // a0 .. a7
+            public override int NumArgumentRegisters => 8;
+            // fp=x8, ra=x1, s1-s11(R9,R18-R27), tp=x3, gp=x4
+            public override int NumCalleeSavedRegisters => 15;
+            // Callee-saves, argument registers
+            public override int SizeOfTransitionBlock => SizeOfCalleeSavedRegisters + PointerSize + SizeOfArgumentRegisters;
+            public override int OffsetOfFirstGCRefMapSlot => SizeOfCalleeSavedRegisters + PointerSize;
+            public override int OffsetOfArgumentRegisters => OffsetOfFirstGCRefMapSlot;
+
+            public override int OffsetOfFloatArgumentRegisters => 8 * sizeof(double);
+            public override int EnregisteredParamTypeMaxSize => 8;
+            public override int EnregisteredReturnTypeIntegerMaxSize => 8;
+
+            public override bool IsArgPassedByRef(TypeHandle th)
+            {
+                Debug.Assert(!th.IsNull());
+                Debug.Assert(th.IsValueType());
+
+                // Composites greater than 16 bytes are passed by reference
+                return th.GetSize() > EnregisteredParamTypeMaxSize;
+            }
+
+            public sealed override int GetRetBuffArgOffset(bool hasThis) => OffsetOfFirstGCRefMapSlot + (hasThis ? 4 : 0);
+
+            public override int StackElemSize(int parmSize, bool isValueType = false, bool isFloatHfa = false)
+            {
+                int stackSlotSize = 4;
                 return ALIGN_UP(parmSize, stackSlotSize);
             }
         }
