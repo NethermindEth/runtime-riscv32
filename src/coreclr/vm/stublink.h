@@ -558,6 +558,10 @@ class Stub
         UINT32  m_pad_code_bytes2;
         UINT32  m_pad_code_bytes3;
 #endif // HOST_64BIT
+#else
+#ifdef HOST_RISCV32
+        UINT32  m_pad_code_bytes1;
+#endif
 #endif // _DEBUG
 
         Stub() = delete; // Stubs are created by NewStub(), not "new".
