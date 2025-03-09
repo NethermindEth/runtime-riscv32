@@ -4752,6 +4752,8 @@ int CordbNativeCode::GetCallInstructionLength(BYTE *ip, ULONG32 count)
 
     _ASSERTE(!"Invalid opcode!");
     return -1;
+#elif defined(TARGET_RISCV32)
+    return MAX_INSTRUCTION_LENGTH;
 #elif defined(TARGET_RISCV64)
     return MAX_INSTRUCTION_LENGTH;
 #else
