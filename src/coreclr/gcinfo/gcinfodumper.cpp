@@ -18,6 +18,8 @@
 #define ADDRESS_SPACING UI64(0x100000000)
 #elif defined(TARGET_ARM)
 #define ADDRESS_SPACING 0x100000
+#elif defined(TARGET_RISCV32)
+#define ADDRESS_SPACING 0x100000
 #else
 #error pick suitable ADDRESS_SPACING for platform
 #endif
@@ -225,6 +227,44 @@ BOOL GcInfoDumper::ReportPointerRecord (
         REG(s8, S8),
 #undef vREG
 #undef REG
+#elif defined(TARGET_RISCV32)
+#undef REG
+#define REG(reg, field) { offsetof(T_KNONVOLATILE_CONTEXT_POINTERS, field) }
+#define vREG(reg, field) { offsetof(RiscV32VolatileContextPointer, field) }
+        vREG(zero, R0),
+        REG(Ra, Ra),
+        { offsetof(T_CONTEXT, Sp) },
+        REG(Gp, Gp),
+        REG(Tp, Tp),
+        vREG(t0, T0),
+        vREG(t1, T1),
+        vREG(t2, T2),
+        REG(Fp, Fp),
+        REG(s1, S1),
+        vREG(a0, A0),
+        vREG(a1, A1),
+        vREG(a2, A2),
+        vREG(a3, A3),
+        vREG(a4, A4),
+        vREG(a5, A5),
+        vREG(a6, A6),
+        vREG(a7, A7),
+        REG(s2, S2),
+        REG(s3, S3),
+        REG(s4, S4),
+        REG(s5, S5),
+        REG(s6, S6),
+        REG(s7, S7),
+        REG(s8, S8),
+        REG(s9, S9),
+        REG(s10, S10),
+        REG(s11, S11),
+        vREG(t3, T3),
+        vREG(t4, T4),
+        vREG(t5, T5),
+        vREG(t6, T6),
+#undef vREG
+#undef REG
 #elif defined(TARGET_RISCV64)
 #undef REG
 #define REG(reg, field) { offsetof(T_KNONVOLATILE_CONTEXT_POINTERS, field) }
@@ -285,6 +325,8 @@ PORTABILITY_ASSERT("GcInfoDumper::ReportPointerRecord is not implemented on this
     iSPRegister = (offsetof(T_CONTEXT, Sp) - offsetof(T_CONTEXT, R0)) / sizeof(ULONG);
     UINT iBFRegister = m_StackBaseRegister;
 #elif defined(TARGET_LOONGARCH64)
+    iSPRegister = (offsetof(T_CONTEXT, Sp) - offsetof(T_CONTEXT, R0)) / sizeof(ULONGLONG);
+#elif defined(TARGET_RISCV32)
     iSPRegister = (offsetof(T_CONTEXT, Sp) - offsetof(T_CONTEXT, R0)) / sizeof(ULONGLONG);
 #elif defined(TARGET_RISCV64)
     iSPRegister = (offsetof(T_CONTEXT, Sp) - offsetof(T_CONTEXT, R0)) / sizeof(ULONGLONG);
@@ -364,6 +406,19 @@ PORTABILITY_ASSERT("GcInfoDumper::ReportPointerRecord is not implemented on this
                 iEncodedReg++; // We have to compensate for not tracking tp
             }
             bool isVolatile = (iReg == 0 || (iReg >= 3 && iReg <= 20));
+            if (ctx == 0)
+            {
+                if (!isVolatile)
+                {
+                    continue;
+                }
+            }
+            else if (isVolatile) // skip volatile registers for second context
+            {
+                continue;
+            }
+#elif defined(TARGET_RISCV32)
+            bool isVolatile = (iReg == 0 || (iReg >= 5 && iReg <= 7) || (iReg >= 10 && iReg <= 17) || iReg >= 28);
             if (ctx == 0)
             {
                 if (!isVolatile)
