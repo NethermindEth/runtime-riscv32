@@ -7,7 +7,7 @@ namespace ILCompiler.DependencyAnalysis
 {
     public partial class JumpStubNode
     {
-        protected override void EmitCode(NodeFactory factory, ref RiscV64Emitter encoder, bool relocsOnly)
+        protected override void EmitCode(NodeFactory factory, ref RiscV32Emitter encoder, bool relocsOnly)
         {
             encoder.EmitJMP(_target);
         }
