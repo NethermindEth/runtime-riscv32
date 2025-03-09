@@ -72,6 +72,9 @@
     <UnofficialBuildRID Include="linux-riscv32">
       <Platform>riscv32</Platform>
     </UnofficialBuildRID>
+    <UnofficialBuildRID Include="linux-musl-riscv32">
+      <Platform>riscv32</Platform>
+    </UnofficialBuildRID>
     <UnofficialBuildRID Include="linux-riscv64">
       <Platform>riscv64</Platform>
     </UnofficialBuildRID>
