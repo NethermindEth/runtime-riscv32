@@ -168,9 +168,14 @@ else()
     endif()
 
     LIST(APPEND NATIVE_LIBS
-        coreclr_static
+        coreclr_static)
 
-        System.Globalization.Native-Static
+    if(NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
+        LIST(APPEND NATIVE_LIBS
+             System.Globalization.Native-Static)
+    endif()
+
+    LIST(APPEND NATIVE_LIBS
         System.IO.Compression.Native-Static
         System.Native-Static
     )

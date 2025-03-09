@@ -48,9 +48,13 @@ namespace
 
 #if defined(NATIVE_LIBS_EMBEDDED)
     extern "C" const void* CompressionResolveDllImport(const char* name);
+#ifndef TARGET_RISCV32
     extern "C" const void* SecurityResolveDllImport(const char* name);
+#endif
     extern "C" const void* SystemResolveDllImport(const char* name);
+#ifndef TARGET_RISCV32
     extern "C" const void* CryptoResolveDllImport(const char* name);
+#endif
     extern "C" const void* CryptoAppleResolveDllImport(const char* name);
 
     // pinvoke_override:
@@ -60,20 +64,22 @@ namespace
         // This function is only called with the library name specified for a p/invoke, not any variations.
         // It must handle exact matches to the names specified. See Interop.Libraries.cs for each platform.
 #if !defined(_WIN32)
+#ifndef TARGET_RISCV32
         if (strcmp(library_name, LIB_NAME("System.Net.Security.Native")) == 0)
         {
             return SecurityResolveDllImport(entry_point_name);
         }
-
+#endif
         if (strcmp(library_name, LIB_NAME("System.Native")) == 0)
         {
             return SystemResolveDllImport(entry_point_name);
         }
-
+#ifndef TARGET_RISCV32
         if (strcmp(library_name, LIB_NAME("System.Security.Cryptography.Native.OpenSsl")) == 0)
         {
             return CryptoResolveDllImport(entry_point_name);
         }
+#endif
 #endif
 
         if (strcmp(library_name, LIB_NAME("System.IO.Compression.Native")) == 0)
