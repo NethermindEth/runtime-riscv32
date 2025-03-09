@@ -226,7 +226,7 @@ LEAF_ENTRY RhpCheckedAssignRef, _TEXT
         bltu    t3, t2, LOCAL_LABEL(NotInHeap)
         bgeu    t3, t6, LOCAL_LABEL(NotInHeap)
 
-        j       C_FUNC(RhpAssignRefRiscV64)
+        j       C_FUNC(RhpAssignRefRiscV32)
 
 LOCAL_LABEL(NotInHeap):
     ALTERNATE_ENTRY RhpCheckedAssignRefAVLocation
