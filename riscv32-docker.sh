@@ -1,10 +1,10 @@
 #!/bin/bash
 export TOP_DIR="$(cd "$(dirname "$(which "$0")")" ; pwd -P)"
 
-interactive="-it"
+interactive="-t"
 
-if [ -z "$PS1" ] ; then
-    interactive="-t"
+if [ -t 0 ] ; then
+    interactive="-it"
 fi
 
 pushd "${TOP_DIR}" > /dev/null 2> /dev/null
