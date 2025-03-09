@@ -249,7 +249,7 @@ BOOL Assembler::Init(BOOL generatePdb)
     if (FAILED(m_pCeeFileGen->GetSectionCreate (m_pCeeFile, ".sdata", sdReadWrite, &m_pGlobalDataSection))) return FALSE;
     if (FAILED(m_pCeeFileGen->GetSectionCreate (m_pCeeFile, ".tls", sdReadWrite, &m_pTLSSection))) return FALSE;
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(TARGET_RISCV32)
     if (m_fDeterministic && !IsOpenSslAvailable())
     {
         fprintf(stderr, "OpenSSL is not available, but required for build determinism\n");

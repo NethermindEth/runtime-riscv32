@@ -72,6 +72,12 @@ inline HRESULT Sha256Hash(BYTE* pSrc, DWORD srcSize, BYTE* pDst, DWORD dstSize)
     CC_SHA256(pSrc, (CC_LONG)srcSize, pDst);
     return S_OK;
 }
+#elif defined(TARGET_RISCV32)
+#pragma message ("Go fix it, it is broken!")
+inline HRESULT Sha256Hash(BYTE* pSrc, DWORD srcSize, BYTE* pDst, DWORD dstSize)
+{
+    return E_FAIL;
+}
 #else
 extern "C" {
     #include "openssl.h"
@@ -99,6 +105,7 @@ inline HRESULT Sha256Hash(BYTE* pSrc, DWORD srcSize, BYTE* pDst, DWORD dstSize)
 
     return S_OK;
 }
+
 #endif
 
 #endif // HAVE_SHA256_H
