@@ -359,7 +359,7 @@ TryAgain:
         case ELEMENT_TYPE_U8:
         case ELEMENT_TYPE_R8:
         value->type = CoreLibBinder::GetElementType(elemType);
-#if !defined(HOST_64BIT) && (DATA_ALIGNMENT > 4)
+#if !defined(HOST_64BIT) && (DATA_ALIGNMENT > 4) && !defined(TARGET_RISCV32)
         if ( fData && origArgPtr == value->data ) {
             // allocate an aligned copy of the value
             value->data = value->type.AsMethodTable()->Box(origArgPtr, FALSE)->UnBox();
