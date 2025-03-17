@@ -96,7 +96,7 @@ namespace System.CommandLine
                     Architecture.Arm => TargetArchitecture.ARM,
                     Architecture.Arm64 => TargetArchitecture.ARM64,
                     Architecture.LoongArch64 => TargetArchitecture.LoongArch64,
-                    Architecture.RiscV32 => TargetArchitecture.RiscV32,
+                    (Architecture)((int)Architecture.RiscV64 + 1)=> TargetArchitecture.RiscV32,
                     Architecture.RiscV64 => TargetArchitecture.RiscV64,
                     _ => throw new NotImplementedException()
                 };
