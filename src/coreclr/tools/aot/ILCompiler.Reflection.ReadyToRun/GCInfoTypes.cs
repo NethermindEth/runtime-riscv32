@@ -160,6 +160,7 @@ namespace ILCompiler.Reflection.ReadyToRun
                     SIZE_OF_RETURN_KIND_FAT = 4;
                     STACK_BASE_REGISTER_ENCBASE = 2;
                     NUM_REGISTERS_ENCBASE = 3;
+                    break;
                 case Machine.RiscV64:
                     SIZE_OF_RETURN_KIND_FAT = 4;
                     STACK_BASE_REGISTER_ENCBASE = 2;
