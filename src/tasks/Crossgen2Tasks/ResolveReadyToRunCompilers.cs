@@ -230,8 +230,9 @@ namespace Microsoft.NET.Build.Tasks
                 case "x86":
                     architecture = Architecture.X86;
                     break;
+                /* setting it like that before all .NET libraries know about RiscV32 */
                 case "riscv32":
-                    architecture = Architecture.RiscV32;
+                    architecture = (Architecture)10;//.RiscV32;
                     break;
                 case "riscv64":
                     architecture = Architecture.RiscV64;
@@ -396,7 +397,8 @@ namespace Microsoft.NET.Build.Tasks
                 Architecture.X64 => "x64",
                 Architecture.Arm => "arm",
                 Architecture.Arm64 => "arm64",
-                Architecture.RiscV32 => "riscv32",
+                /* setting it like that before all .NET libraries know about RiscV32 */
+                (Architecture)/*Architecture.RiscV32*/10 => "riscv32",
                 Architecture.RiscV64 => "riscv64",
                 Architecture.LoongArch64 => "loongarch64",
                 _ => null
