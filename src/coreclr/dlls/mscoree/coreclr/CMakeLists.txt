@@ -63,7 +63,7 @@ endif (CLR_CMAKE_HOST_WIN32)
 add_definitions(-DFX_VER_INTERNALNAME_STR=CoreCLR.dll)
 
 add_library_clr(coreclr
-    SHARED
+    STATIC
     ${CLR_SOURCES}
 )
 
@@ -100,13 +100,18 @@ set(CORECLR_LIBRARIES
     corguids
     gcinfo
     utilcode
-    v3binder
-    System.Globalization.Native-Static
-    interop
-    coreclrminipal
-    gc_pal
-    cdac_contract_descriptor
-)
+    v3binder)
+
+if(NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
+    list(APPEND CORECLR_LIBRARIES
+         System.Globalization.Native-Static)
+endif()
+
+list(APPEND CORECLR_LIBRARIES
+     interop
+     coreclrminipal
+     gc_pal
+     cdac_contract_descriptor)
 
 if(CLR_CMAKE_TARGET_ARCH_AMD64)
     list(APPEND CORECLR_LIBRARIES
@@ -155,13 +160,13 @@ elseif(CLR_CMAKE_TARGET_HAIKU)
     )
 endif(CLR_CMAKE_TARGET_LINUX)
 
-if(FEATURE_PERFTRACING)
+if(FEATURE_PERFTRACING AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
     list(APPEND CORECLR_LIBRARIES
         eventpipe
     )
 endif(FEATURE_PERFTRACING)
 
-if(FEATURE_EVENT_TRACE)
+if(FEATURE_EVENT_TRACE AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
     if(CLR_CMAKE_HOST_UNIX)
         list(APPEND CORECLR_LIBRARIES
             eventprovider # On Windows this library contains only macros
@@ -169,7 +174,7 @@ if(FEATURE_EVENT_TRACE)
     endif(CLR_CMAKE_HOST_UNIX)
 endif(FEATURE_EVENT_TRACE)
 
-if(FEATURE_PERFTRACING)
+if(FEATURE_PERFTRACING AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
     if(CLR_CMAKE_TARGET_LINUX)
         list(APPEND CORECLR_LIBRARIES
             usereventsprovider

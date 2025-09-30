@@ -1,0 +1,24 @@
+{
+    "folders":
+    [
+        {
+            "path": "."
+        }
+    ],
+    "build_systems":
+    [
+        {
+            "cmd":
+            [
+                "make"
+            ],
+            "name": "Runtime-riscv32 - build",
+            "shell": true,
+            "working_dir": "${project_path:${folder}}",
+            "file_regex": "[ ]*--> (.*):(.*):(.*)$",
+
+            "target": "ansi_color_build",
+            "syntax": "Packages/ANSIescape/ANSI.sublime-syntax"
+        }
+    ]
+}

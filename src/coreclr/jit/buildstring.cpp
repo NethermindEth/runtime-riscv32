@@ -24,6 +24,8 @@
 #define TARGET_ARCH_STRING "arm64"
 #elif defined(TARGET_LOONGARCH64)
 #define TARGET_ARCH_STRING "loongarch64"
+#elif defined(TARGET_RISCV32)
+#define TARGET_ARCH_STRING "riscv32"
 #elif defined(TARGET_RISCV64)
 #define TARGET_ARCH_STRING "riscv64"
 #else

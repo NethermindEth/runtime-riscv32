@@ -217,6 +217,61 @@ struct NATIVE_CONTEXT
         lambda((size_t*)&Ra());
     }
 
+#elif defined(TARGET_RISCV32)
+
+    uint32_t& R0();
+    uint32_t& Ra();
+    uint32_t& Sp();
+    uint32_t& Gp();
+    uint32_t& Tp();
+    uint32_t& T0();
+    uint32_t& T1();
+    uint32_t& T2();
+    uint32_t& Fp();
+    uint32_t& S1();
+    uint32_t& A0();
+    uint32_t& A1();
+    uint32_t& A2();
+    uint32_t& A3();
+    uint32_t& A4();
+    uint32_t& A5();
+    uint32_t& A6();
+    uint32_t& A7();
+    uint32_t& S2();
+    uint32_t& S3();
+    uint32_t& S4();
+    uint32_t& S5();
+    uint32_t& S6();
+    uint32_t& S7();
+    uint32_t& S8();
+    uint32_t& S9();
+    uint32_t& S10();
+    uint32_t& S11();
+    uint32_t& T3();
+    uint32_t& T4();
+    uint32_t& T5();
+    uint32_t& T6();
+    uint32_t& Pc();
+
+    uintptr_t GetIp() { return (uintptr_t)Pc(); }
+    uintptr_t GetSp() { return (uintptr_t)Sp(); }
+
+    template <typename F>
+    void ForEachPossibleObjectRef(F lambda)
+    {
+        // It is expected that registers are stored in a contiguous manner
+        // Here are some asserts to check
+        ASSERT(&A0() + 1 == &A1());
+        ASSERT(&A0() + 7 == &A7());
+
+        for (uint32_t* pReg = &Ra(); pReg <= &T6(); pReg++)
+            lambda((size_t*)pReg);
+
+        // Ra and Fp can be used as scratch registers
+        lambda((size_t*)&Ra());
+        lambda((size_t*)&Fp());
+    }
+
 #elif defined(TARGET_RISCV64)
 
     uint64_t& R0();

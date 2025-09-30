@@ -10,6 +10,8 @@
 #include "emitfmtsarm64.h"
 #elif defined(TARGET_LOONGARCH64)
 #include "emitfmtsloongarch64.h"
+#elif defined(TARGET_RISCV32)
+#include "emitfmtsriscv32.h"
 #elif defined(TARGET_RISCV64)
 #include "emitfmtsriscv64.h"
 #else

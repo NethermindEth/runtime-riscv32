@@ -16,7 +16,7 @@ add_compile_definitions(
     FEATURE_LIBHOST
     NETHOST_EXPORT)
 
-add_library(nethost SHARED ${SOURCES})
+add_library(nethost STATIC ${SOURCES})
 add_library(libnethost STATIC ${SOURCES})
 
 add_version_info_to_target(nethost)

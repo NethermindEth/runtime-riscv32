@@ -92,7 +92,7 @@ bool GcInfoDecoder::PredecodeFatHeader(int remainingFlags)
     m_headerFlags = (GcInfoHeaderFlags)m_Reader.Read(numFlagBits);
 
     remainingFlags &= ~DECODE_VARARG;
-#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
     remainingFlags &= ~DECODE_HAS_TAILCALLS;
 #endif
     if (remainingFlags == 0)
@@ -297,7 +297,7 @@ GcInfoDecoder::GcInfoDecoder(
         }
 
         remainingFlags &= ~DECODE_VARARG;
-#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
         remainingFlags &= ~DECODE_HAS_TAILCALLS;
 #endif
 
@@ -608,13 +608,13 @@ bool GcInfoDecoder::GetIsVarArg()
     return m_headerFlags & GC_INFO_IS_VARARG;
 }
 
-#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64) || defined(TARGET_RISCV32)
 bool GcInfoDecoder::HasTailCalls()
 {
     _ASSERTE( m_Flags & DECODE_HAS_TAILCALLS );
     return ((m_headerFlags & GC_INFO_HAS_TAILCALLS) != 0);
 }
-#endif // TARGET_ARM || TARGET_ARM64 || TARGET_LOONGARCH64 || TARGET_RISCV64
+#endif // TARGET_ARM || TARGET_ARM64 || TARGET_LOONGARCH64 || TARGET_RISCV32 || TARGET_RISCV64
 
 bool GcInfoDecoder::WantsReportOnlyLeaf()
 {
@@ -1949,6 +1949,144 @@ void GcInfoDecoder::ReportRegisterToGC(
     pCallBack(hCallBack, pObjRef, gcFlags DAC_ARG(DacSlotLocation(regNum, 0, false)));
 }
 
+#elif defined(TARGET_RISCV32)
+
+#if defined(TARGET_UNIX) && !defined(FEATURE_NATIVEAOT)
+OBJECTREF* GcInfoDecoder::GetCapturedRegister(
+    int             regNum,
+    PREGDISPLAY     pRD
+    )
+{
+    _ASSERTE(regNum >= 1 && regNum <= 31);
+
+    // The fields of CONTEXT are in the same order as
+    // the processor encoding numbers.
+
+    DWORD *pR0 = &pRD->pCurrentContext->R0;
+
+    return (OBJECTREF*)(pR0 + regNum);
+}
+#endif // TARGET_UNIX && !FEATURE_NATIVEAOT
+
+OBJECTREF* GcInfoDecoder::GetRegisterSlot(
+                        int             regNum,
+                        PREGDISPLAY     pRD
+                        )
+{
+    _ASSERTE((regNum == 1) || (regNum >= 5 && regNum <= 31));
+
+#ifdef FEATURE_NATIVEAOT
+    PTR_uintptr_t* ppReg = &pRD->pRA;
+
+    return (OBJECTREF*)*(ppReg + regNum);
+#else
+    if(regNum == 1)
+    {
+        return (OBJECTREF*) pRD->pCurrentContextPointers->Ra;
+    }
+    else if (regNum < 8)
+    {
+        return (OBJECTREF*)*(DWORD64**)(&pRD->volatileCurrContextPointers.T0 + (regNum - 5));
+    }
+    else if(regNum == 8)
+    {
+        return (OBJECTREF*) pRD->pCurrentContextPointers->Fp;
+    }
+    else if (regNum == 9)
+    {
+        return (OBJECTREF*) pRD->pCurrentContextPointers->S1;
+    }
+    else if (regNum < 18)
+    {
+        return (OBJECTREF*)*(DWORD64**)(&pRD->volatileCurrContextPointers.A0 + (regNum - 10));
+    }
+    else if (regNum < 28)
+    {
+        return (OBJECTREF*)*(DWORD64**)(&pRD->pCurrentContextPointers->S2 + (regNum-18));
+    }
+    return (OBJECTREF*)*(DWORD64**)(&pRD->volatileCurrContextPointers.T3 + (regNum-28));
+#endif
+}
+
+bool GcInfoDecoder::IsScratchRegister(int regNum,  PREGDISPLAY pRD)
+{
+    _ASSERTE(regNum >= 0 && regNum <= 31);
+
+    return (regNum >= 5 && regNum <= 7) || (regNum >= 10 and regNum <= 17) || regNum >= 28 || regNum == 1;
+}
+
+bool GcInfoDecoder::IsScratchStackSlot(INT32 spOffset, GcStackSlotBase spBase, PREGDISPLAY     pRD)
+{
+#ifdef FIXED_STACK_PARAMETER_SCRATCH_AREA
+    _ASSERTE( m_Flags & DECODE_GC_LIFETIMES );
+
+    TADDR pSlot = (TADDR) GetStackSlot(spOffset, spBase, pRD);
+    _ASSERTE(pSlot >= pRD->SP);
+
+    return (pSlot < pRD->SP + m_SizeOfStackOutgoingAndScratchArea);
+#else
+    return FALSE;
+#endif
+}
+
+void GcInfoDecoder::ReportRegisterToGC(
+                                int             regNum,
+                                unsigned        gcFlags,
+                                PREGDISPLAY     pRD,
+                                unsigned        flags,
+                                GCEnumCallback  pCallBack,
+                                void *          hCallBack)
+{
+    GCINFODECODER_CONTRACT;
+
+    _ASSERTE(regNum > 0 && regNum <= 31);
+
+    LOG((LF_GCROOTS, LL_INFO1000, "Reporting " FMT_REG, regNum ));
+
+    OBJECTREF* pObjRef = GetRegisterSlot( regNum, pRD );
+#if defined(TARGET_UNIX) && !defined(FEATURE_NATIVEAOT) && !defined(SOS_TARGET_RISCV32)
+
+    // On PAL, we don't always have the context pointers available due to
+    // a limitation of an unwinding library. In such case, the context
+    // pointers for some nonvolatile registers are NULL.
+    // In such case, we let the pObjRef point to the captured register
+    // value in the context and pin the object itself.
+    if (pObjRef == NULL)
+    {
+        // Report a pinned object to GC only in the promotion phase when the
+        // GC is scanning roots.
+        GCCONTEXT* pGCCtx = (GCCONTEXT*)(hCallBack);
+        if (!pGCCtx->sc->promotion)
+        {
+            return;
+        }
+
+        pObjRef = GetCapturedRegister(regNum, pRD);
+
+        gcFlags |= GC_CALL_PINNED;
+    }
+#endif // TARGET_UNIX && !SOS_TARGET_RISCV32
+
+#ifdef _DEBUG
+    if(IsScratchRegister(regNum, pRD))
+    {
+        // Scratch registers cannot be reported for non-leaf frames
+        _ASSERTE(flags & ActiveStackFrame);
+    }
+
+    LOG((LF_GCROOTS, LL_INFO1000, /* Part Two */
+         "at" FMT_ADDR "as ", DBG_ADDR(pObjRef) ));
+
+    VALIDATE_ROOT((gcFlags & GC_CALL_INTERIOR), hCallBack, pObjRef);
+
+    LOG_PIPTR(pObjRef, gcFlags, hCallBack);
+#endif //_DEBUG
+
+    gcFlags |= CHECK_APP_DOMAIN;
+
+    pCallBack(hCallBack, pObjRef, gcFlags DAC_ARG(DacSlotLocation(regNum, 0, false)));
+}
+
 #elif defined(TARGET_RISCV64)
 
 #if defined(TARGET_UNIX) && !defined(FEATURE_NATIVEAOT)
@@ -2174,6 +2312,8 @@ int GcInfoDecoder::GetStackReg(int spBase)
     int esp = 31;
 #elif defined(TARGET_LOONGARCH64)
     int esp = 3;
+#elif defined(TARGET_RISCV32)
+    int esp = 2;
 #elif defined(TARGET_RISCV64)
     int esp = 2;
 #endif

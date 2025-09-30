@@ -64,6 +64,10 @@ namespace System.Runtime.InteropServices.RuntimeInformationTests
                     Assert.Equal(Architecture.RiscV64, processArch);
                     break;
 
+                case Architecture.RiscV32:
+                    Assert.Equal(Architecture.RiscV32, processArch);
+                    break;
+
                 default:
                     Assert.Fail("Unexpected Architecture.");
                     break;

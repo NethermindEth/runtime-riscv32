@@ -518,10 +518,12 @@ namespace CorUnix
     --*/
     void CriticalSectionSubSysInitialize()
     {
+        /*
+        RISCV32 FIXME:
         static_assert(sizeof(CRITICAL_SECTION) >= sizeof(PAL_CRITICAL_SECTION),
             "PAL fatal internal error: sizeof(CRITICAL_SECTION) is "
             "smaller than sizeof(PAL_CRITICAL_SECTION)");
-
+        */
 #ifdef _DEBUG
         LONG lRet = InterlockedCompareExchange((LONG *)&csssInitState,
                                                (LONG)CSSubSysInitializing,

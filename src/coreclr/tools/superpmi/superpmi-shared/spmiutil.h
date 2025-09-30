@@ -55,6 +55,7 @@ enum SPMI_TARGET_ARCHITECTURE
     SPMI_TARGET_ARCHITECTURE_ARM64,
     SPMI_TARGET_ARCHITECTURE_ARM,
     SPMI_TARGET_ARCHITECTURE_LOONGARCH64,
+    SPMI_TARGET_ARCHITECTURE_RISCV32,
     SPMI_TARGET_ARCHITECTURE_RISCV64
 };
 
@@ -63,7 +64,7 @@ void SetSpmiTargetArchitecture(SPMI_TARGET_ARCHITECTURE spmiTargetArchitecture);
 
 inline bool IsSpmiTarget32Bit()
 {
-    return (GetSpmiTargetArchitecture() == SPMI_TARGET_ARCHITECTURE_X86) || (GetSpmiTargetArchitecture() == SPMI_TARGET_ARCHITECTURE_ARM);
+    return (GetSpmiTargetArchitecture() == SPMI_TARGET_ARCHITECTURE_X86) || (GetSpmiTargetArchitecture() == SPMI_TARGET_ARCHITECTURE_ARM) || (GetSpmiTargetArchitecture() == SPMI_TARGET_ARCHITECTURE_RISCV32);
 }
 
 inline bool IsSpmiTarget64Bit()

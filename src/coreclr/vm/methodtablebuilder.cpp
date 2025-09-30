@@ -10170,7 +10170,7 @@ void MethodTableBuilder::CheckForSystemTypes()
             // to the same alignment as __m128, which is supported by the ABI.
 
             pLayout->m_ManagedLargestAlignmentRequirementOfAllMembers = 8;
-#elif defined(TARGET_64BIT) || defined(TARGET_X86)
+#elif defined(TARGET_64BIT) || defined(TARGET_X86) || defined(TARGET_RISCV32)
 
             // These types correspond to fundamental data types in the underlying ABIs:
             // * Int128:  __int128

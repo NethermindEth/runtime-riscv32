@@ -53,7 +53,7 @@ Abstract:
 #define CGROUP1_MEMORY_STAT_INACTIVE_FIELD "total_inactive_file "
 #define CGROUP2_MEMORY_STAT_INACTIVE_FIELD "inactive_file "
 
-extern bool ReadMemoryValueFromFile(const char* filename, uint64_t* val);
+extern bool ReadMemoryValueFromFile(const char* filename, size_t* val);
 
 namespace
 {
@@ -435,7 +435,7 @@ private:
         if (asprintf(&mem_use_hierarchy_filename, "%s%s", s_memory_cgroup_path, CGROUP1_MEMORY_USE_HIERARCHY_FILENAME) < 0)
             return false;
 
-        uint64_t useHierarchy = 0;
+        size_t useHierarchy = 0;
         ReadMemoryValueFromFile(mem_use_hierarchy_filename, &useHierarchy);
         free(mem_use_hierarchy_filename);
 
@@ -448,7 +448,9 @@ private:
         if (asprintf(&mem_limit_filename, "%s%s", s_memory_cgroup_path, CGROUP1_MEMORY_LIMIT_FILENAME) < 0)
             return false;
 
-        bool result = ReadMemoryValueFromFile(mem_limit_filename, val);
+        size_t sval;
+        bool result = ReadMemoryValueFromFile(mem_limit_filename, &sval);
+        *val = sval;
         free(mem_limit_filename);
         return result;
     }
@@ -461,7 +463,7 @@ private:
         // Process the whole CGroup hierarchy to find a level with the most limiting limit
         size_t memory_cgroup_hierarchy_mount_length = strlen(s_memory_cgroup_hierarchy_mount);
         uint64_t min_limit = std::numeric_limits<uint64_t>::max();
-        uint64_t limit;
+        size_t limit;
         bool found_any_limit = false;
 
         char *mem_limit_filename = nullptr;
@@ -515,7 +517,7 @@ private:
         if (asprintf(&mem_usage_filename, "%s%s", s_memory_cgroup_path, filename) < 0)
             return false;
 
-        uint64_t usage = 0;
+        size_t usage = 0;
 
         bool result = ReadMemoryValueFromFile(mem_usage_filename, &usage);
         if (result)

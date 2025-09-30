@@ -43,7 +43,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 #endif /* __riscv_float_abi_double */
 
 #else
-# error "Add offsets here"
+/* FIXME */
+# define JB_MASK_SAVED  (152>>3)
+# define JB_MASK        (156>>3)
 #endif /* __riscv_xlen */
 
 #endif

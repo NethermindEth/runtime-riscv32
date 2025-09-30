@@ -518,6 +518,147 @@ typedef struct _T_KNONVOLATILE_CONTEXT_POINTERS {
     PDWORD64 F31;
 } T_KNONVOLATILE_CONTEXT_POINTERS, *PT_KNONVOLATILE_CONTEXT_POINTERS;
 
+#elif defined(HOST_AMD64) && defined(TARGET_RISCV32)  // Host amd64 managing RISCV32 related code
+
+#ifndef CROSS_COMPILE
+#define CROSS_COMPILE
+#endif
+
+//
+// Specify the number of breakpoints and watchpoints that the OS
+// will track.
+//
+
+#define RISCV32_MAX_BREAKPOINTS     8
+#define RISCV32_MAX_WATCHPOINTS     2
+
+#define CONTEXT_UNWOUND_TO_CALL 0x20000000
+
+typedef struct DECLSPEC_ALIGN(16) _T_CONTEXT {
+
+    //
+    // Control flags.
+    //
+
+    /* +0x000 */ DWORD ContextFlags;
+
+    //
+    // Integer registers
+    //
+    DWORD R0;
+    DWORD Ra;
+    DWORD Sp;
+    DWORD Gp;
+    DWORD Tp;
+    DWORD T0;
+    DWORD T1;
+    DWORD T2;
+    DWORD Fp;
+    DWORD S1;
+    DWORD A0;
+    DWORD A1;
+    DWORD A2;
+    DWORD A3;
+    DWORD A4;
+    DWORD A5;
+    DWORD A6;
+    DWORD A7;
+    DWORD S2;
+    DWORD S3;
+    DWORD S4;
+    DWORD S5;
+    DWORD S6;
+    DWORD S7;
+    DWORD S8;
+    DWORD S9;
+    DWORD S10;
+    DWORD S11;
+    DWORD T3;
+    DWORD T4;
+    DWORD T5;
+    DWORD T6;
+    DWORD Pc;
+
+    //
+    // Floating Point Registers
+    //
+    //TODO-RISCV32: support the SIMD.
+    ULONGLONG F[32];
+    DWORD Fcsr;
+} T_CONTEXT, *PT_CONTEXT;
+
+// _IMAGE_RISCV32_RUNTIME_FUNCTION_ENTRY (see ExternalAPIs\Win9CoreSystem\inc\winnt.h)
+typedef struct _T_RUNTIME_FUNCTION {
+    DWORD BeginAddress;
+    union {
+        DWORD UnwindData;
+        struct {
+            DWORD Flag : 2;
+            DWORD FunctionLength : 11;
+            DWORD RegF : 3;
+            DWORD RegI : 4;
+            DWORD H : 1;
+            DWORD CR : 2;
+            DWORD FrameSize : 9;
+        } PackedUnwindData;
+    };
+} T_RUNTIME_FUNCTION, *PT_RUNTIME_FUNCTION;
+
+//
+// Define exception dispatch context structure.
+//
+
+typedef struct _T_DISPATCHER_CONTEXT {
+    DWORD64 ControlPc;
+    DWORD64 ImageBase;
+    PT_RUNTIME_FUNCTION FunctionEntry;
+    DWORD64 EstablisherFrame;
+    DWORD64 TargetPc;
+    PCONTEXT ContextRecord;
+    PEXCEPTION_ROUTINE LanguageHandler;
+    PVOID HandlerData;
+    PVOID HistoryTable;
+    DWORD ScopeIndex;
+    BOOLEAN ControlPcIsUnwound;
+    PBYTE  NonVolatileRegisters;
+} T_DISPATCHER_CONTEXT, *PT_DISPATCHER_CONTEXT;
+
+//
+// Nonvolatile context pointer record.
+//
+
+typedef struct _T_KNONVOLATILE_CONTEXT_POINTERS {
+
+    PDWORD64 S1;
+    PDWORD64 S2;
+    PDWORD64 S3;
+    PDWORD64 S4;
+    PDWORD64 S5;
+    PDWORD64 S6;
+    PDWORD64 S7;
+    PDWORD64 S8;
+    PDWORD64 S9;
+    PDWORD64 S10;
+    PDWORD64 S11;
+    PDWORD64 Fp;
+    PDWORD64 Gp;
+    PDWORD64 Tp;
+    PDWORD64 Ra;
+
+    PDWORD64 F8;
+    PDWORD64 F9;
+    PDWORD64 F18;
+    PDWORD64 F19;
+    PDWORD64 F20;
+    PDWORD64 F21;
+    PDWORD64 F22;
+    PDWORD64 F23;
+    PDWORD64 F24;
+    PDWORD64 F25;
+    PDWORD64 F26;
+    PDWORD64 F27;
+} T_KNONVOLATILE_CONTEXT_POINTERS, *PT_KNONVOLATILE_CONTEXT_POINTERS;
+
 #elif defined(HOST_AMD64) && defined(TARGET_RISCV64)  // Host amd64 managing RISCV64 related code
 
 #ifndef CROSS_COMPILE
@@ -706,6 +847,8 @@ typedef struct _T_KNONVOLATILE_CONTEXT_POINTERS {
 #elif (defined(TARGET_LINUX) || defined(TARGET_ANDROID)) && defined(TARGET_AMD64)
 #define DAC_CS_NATIVE_DATA_SIZE 96
 #elif defined(TARGET_LINUX) && defined(TARGET_S390X)
+#define DAC_CS_NATIVE_DATA_SIZE 96
+#elif defined(TARGET_LINUX) && defined(TARGET_RISCV32)
 #define DAC_CS_NATIVE_DATA_SIZE 96
 #elif defined(TARGET_LINUX) && defined(TARGET_RISCV64)
 #define DAC_CS_NATIVE_DATA_SIZE 96

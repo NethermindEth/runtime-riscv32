@@ -20,7 +20,7 @@ endif(CLR_CMAKE_TARGET_WIN32)
 
 add_compile_definitions(EXPORT_SHARED_API)
 
-add_library(hostpolicy SHARED ${SOURCES})
+add_library(hostpolicy STATIC ${SOURCES})
 add_version_info_to_target(hostpolicy)
 
 if(CLR_CMAKE_HOST_UNIX)

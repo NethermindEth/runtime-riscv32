@@ -74,6 +74,8 @@ namespace ILCompiler.Reflection.ReadyToRun
                     return ((Arm64.Registers)regnum).ToString();
                 case Machine.LoongArch64:
                     return ((LoongArch64.Registers)regnum).ToString();
+                case Machine.RiscV32:
+                    return ((RiscV32.Registers)regnum).ToString();
                 case Machine.RiscV64:
                     return ((RiscV64.Registers)regnum).ToString();
                 default:

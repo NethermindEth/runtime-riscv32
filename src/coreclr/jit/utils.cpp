@@ -359,6 +359,14 @@ const char* dspRegRange(regMaskTP regMask, size_t& minSiz, const char* sep, regN
                         inRegRange = true;
                         sep        = "-";
                     }
+#elif defined(TARGET_RISCV32)
+                    if ((REG_A0 <= regNum && REG_A7 >= regNum) || REG_T0 == regNum || REG_T1 == regNum ||
+                        (REG_T2 <= regNum && REG_T6 >= regNum))
+                    {
+                        regHead    = regNum;
+                        inRegRange = true;
+                        sep        = "-";
+                    }
 #elif defined(TARGET_RISCV64)
                     if ((REG_A0 <= regNum && REG_A7 >= regNum) || REG_T0 == regNum || REG_T1 == regNum ||
                         (REG_T2 <= regNum && REG_T6 >= regNum))
@@ -2273,7 +2281,7 @@ uint64_t FloatingPointUtils::convertDoubleToUInt64(double d)
 //
 double FloatingPointUtils::convertToDouble(float f)
 {
-#ifdef HOST_RISCV64
+#if defined(HOST_RISCV32) || defined(HOST_RISCV64)
     if (f == f)
     {
         return f;
@@ -2305,7 +2313,7 @@ double FloatingPointUtils::convertToDouble(float f)
 //
 float FloatingPointUtils::convertToSingle(double d)
 {
-#ifdef HOST_RISCV64
+#if defined(HOST_RISCV32) || defined(HOST_RISCV64)
     if (d == d)
     {
         return (float)d;

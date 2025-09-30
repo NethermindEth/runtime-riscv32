@@ -2129,6 +2129,12 @@
         "linux-ppc64le"
       ]
     },
+    "linux-musl-riscv32": {
+      "#import": [
+        "linux-musl",
+        "linux-riscv32"
+      ]
+    },
     "linux-musl-riscv64": {
       "#import": [
         "linux-musl",
@@ -2163,6 +2169,12 @@
       "#import": [
         "linux",
         "unix-ppc64le"
+      ]
+    },
+    "linux-riscv32": {
+      "#import": [
+        "linux",
+        "unix-riscv32"
       ]
     },
     "linux-riscv64": {
@@ -4268,6 +4280,11 @@
       ]
     },
     "unix-ppc64le": {
+      "#import": [
+        "unix"
+      ]
+    },
+    "unix-riscv32": {
       "#import": [
         "unix"
       ]

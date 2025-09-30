@@ -145,6 +145,9 @@ else()
   add_definitions(-D_LIBUNWIND_DISABLE_ZERO_COST_APIS=1)
 
   # Compile unwinding only for the current compilation target architecture
+  if (CLR_CMAKE_TARGET_ARCH_RISCV32)
+    add_definitions(-D_LIBUNWIND_RISCV32_HACK)
+  endif ()
   add_definitions(-D_LIBUNWIND_IS_NATIVE_ONLY)
 
   if(CLR_CMAKE_TARGET_HAIKU)

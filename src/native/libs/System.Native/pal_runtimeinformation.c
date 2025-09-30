@@ -66,6 +66,7 @@ enum
     ARCH_ARMV6,
     ARCH_POWERPC64,
     ARCH_RISCV64,
+    ARCH_RISCV32,
 };
 
 int32_t SystemNative_GetOSArchitecture(void)
@@ -142,6 +143,11 @@ int32_t SystemNative_GetOSArchitecture(void)
         else if (strcmp("riscv64", isa) == 0)
         {
             result = ARCH_RISCV64;
+        }
+
+        else if (strcmp("riscv32", isa) == 0)
+        {
+            result = ARCH_RISCV32;
         }
     }
 

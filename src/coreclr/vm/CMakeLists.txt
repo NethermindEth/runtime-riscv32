@@ -490,7 +490,7 @@ set(GC_HEADERS_WKS
     ../gc/gchandletableimpl.h
     ../gc/softwarewritewatch.h)
 
-if(FEATURE_EVENT_TRACE)
+if(FEATURE_EVENT_TRACE AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
     list(APPEND VM_SOURCES_WKS
         eventtrace.cpp
         eventtrace_bulktype.cpp
@@ -714,6 +714,13 @@ else(CLR_CMAKE_TARGET_WIN32)
             ${ARCH_SOURCES_DIR}/pinvokestubs.S
             ${ARCH_SOURCES_DIR}/thunktemplates.S
         )
+    elseif(CLR_CMAKE_TARGET_ARCH_RISCV32)
+        set(VM_SOURCES_WKS_ARCH_ASM
+            ${ARCH_SOURCES_DIR}/asmhelpers.S
+            ${ARCH_SOURCES_DIR}/calldescrworkerriscv32.S
+            ${ARCH_SOURCES_DIR}/pinvokestubs.S
+            ${ARCH_SOURCES_DIR}/thunktemplates.S
+        )
     elseif(CLR_CMAKE_TARGET_ARCH_RISCV64)
         set(VM_SOURCES_WKS_ARCH_ASM
             ${ARCH_SOURCES_DIR}/asmhelpers.S
@@ -837,6 +844,22 @@ elseif(CLR_CMAKE_TARGET_ARCH_LOONGARCH64)
         ${ARCH_SOURCES_DIR}/singlestepper.cpp
         gcinfodecoder.cpp
     )
+elseif(CLR_CMAKE_TARGET_ARCH_RISCV32)
+    set(VM_SOURCES_DAC_AND_WKS_ARCH
+        ${ARCH_SOURCES_DIR}/stubs.cpp
+        exceptionhandling.cpp
+    )
+
+    set(VM_HEADERS_DAC_AND_WKS_ARCH
+        ${ARCH_SOURCES_DIR}/virtualcallstubcpu.hpp
+        exceptionhandling.h
+    )
+
+    set(VM_SOURCES_WKS_ARCH
+        ${ARCH_SOURCES_DIR}/profiler.cpp
+        ${ARCH_SOURCES_DIR}/singlestepper.cpp
+        gcinfodecoder.cpp
+    )
 elseif(CLR_CMAKE_TARGET_ARCH_RISCV64)
     set(VM_SOURCES_DAC_AND_WKS_ARCH
         ${ARCH_SOURCES_DIR}/stubs.cpp
@@ -943,6 +966,6 @@ target_precompile_headers(cee_dac PRIVATE [["common.h"]])
 
 add_subdirectory(wks)
 
-if(FEATURE_PERFTRACING)
+if(FEATURE_PERFTRACING AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
     add_subdirectory(eventing)
-endif(FEATURE_PERFTRACING)
+endif(FEATURE_PERFTRACING AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32)

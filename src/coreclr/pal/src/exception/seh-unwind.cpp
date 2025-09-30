@@ -163,6 +163,28 @@ enum
     ASSIGN_REG(S9)         \
     ASSIGN_REG(S10)        \
     ASSIGN_REG(S11)
+#elif (defined(HOST_UNIX) && defined(HOST_RISCV32))
+
+// https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/2d865a2964fe06bfc569ab00c74e152b582ed764/riscv-cc.adoc
+
+#define ASSIGN_UNWIND_REGS \
+    ASSIGN_REG(Ra)         \
+    ASSIGN_REG(Sp)         \
+    ASSIGN_REG(Gp)         \
+    ASSIGN_REG(Tp)         \
+    ASSIGN_REG(Pc)         \
+    ASSIGN_REG(Fp)         \
+    ASSIGN_REG(S1)         \
+    ASSIGN_REG(S2)         \
+    ASSIGN_REG(S3)         \
+    ASSIGN_REG(S4)         \
+    ASSIGN_REG(S5)         \
+    ASSIGN_REG(S6)         \
+    ASSIGN_REG(S7)         \
+    ASSIGN_REG(S8)         \
+    ASSIGN_REG(S9)         \
+    ASSIGN_REG(S10)        \
+    ASSIGN_REG(S11)
 #elif (defined(HOST_UNIX) && defined(HOST_POWERPC64))
 #define ASSIGN_UNWIND_REGS \
     ASSIGN_REG(Nip)        \
@@ -477,6 +499,27 @@ void UnwindContextToWinContext(unw_cursor_t *cursor, CONTEXT *winContext)
     unw_get_reg(cursor, UNW_RISCV_X25, (unw_word_t *) &winContext->S9);
     unw_get_reg(cursor, UNW_RISCV_X26, (unw_word_t *) &winContext->S10);
     unw_get_reg(cursor, UNW_RISCV_X27, (unw_word_t *) &winContext->S11);
+
+#elif (defined(HOST_UNIX) && defined(HOST_RISCV32))
+    // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/2d865a2964fe06bfc569ab00c74e152b582ed764/riscv-cc.adoc
+
+    unw_get_reg(cursor, UNW_REG_IP, (unw_word_t *) &winContext->Pc);
+    unw_get_reg(cursor, UNW_REG_SP, (unw_word_t *) &winContext->Sp);
+    unw_get_reg(cursor, UNW_RISCV_X1, (unw_word_t *) &winContext->Ra);
+    unw_get_reg(cursor, UNW_RISCV_X3, (unw_word_t *) &winContext->Gp);
+    unw_get_reg(cursor, UNW_RISCV_X4, (unw_word_t *) &winContext->Tp);
+    unw_get_reg(cursor, UNW_RISCV_X8, (unw_word_t *) &winContext->Fp);
+    unw_get_reg(cursor, UNW_RISCV_X9, (unw_word_t *) &winContext->S1);
+    unw_get_reg(cursor, UNW_RISCV_X18, (unw_word_t *) &winContext->S2);
+    unw_get_reg(cursor, UNW_RISCV_X19, (unw_word_t *) &winContext->S3);
+    unw_get_reg(cursor, UNW_RISCV_X20, (unw_word_t *) &winContext->S4);
+    unw_get_reg(cursor, UNW_RISCV_X21, (unw_word_t *) &winContext->S5);
+    unw_get_reg(cursor, UNW_RISCV_X22, (unw_word_t *) &winContext->S6);
+    unw_get_reg(cursor, UNW_RISCV_X23, (unw_word_t *) &winContext->S7);
+    unw_get_reg(cursor, UNW_RISCV_X24, (unw_word_t *) &winContext->S8);
+    unw_get_reg(cursor, UNW_RISCV_X25, (unw_word_t *) &winContext->S9);
+    unw_get_reg(cursor, UNW_RISCV_X26, (unw_word_t *) &winContext->S10);
+    unw_get_reg(cursor, UNW_RISCV_X27, (unw_word_t *) &winContext->S11);
 #elif (defined(HOST_UNIX) && defined(HOST_POWERPC64))
     unw_get_reg(cursor, UNW_REG_SP, (unw_word_t *) &winContext->R31);
     unw_get_reg(cursor, UNW_REG_IP, (unw_word_t *) &winContext->Nip);
@@ -595,6 +638,24 @@ void GetContextPointers(unw_cursor_t *cursor, unw_context_t *unwContext, KNONVOL
     GetContextPointer(cursor, unwContext, UNW_LOONGARCH64_R30, (SIZE_T **)&contextPointers->S7);
     GetContextPointer(cursor, unwContext, UNW_LOONGARCH64_R31, (SIZE_T **)&contextPointers->S8);
 #elif (defined(HOST_UNIX) && defined(HOST_RISCV64))
+    // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/2d865a2964fe06bfc569ab00c74e152b582ed764/riscv-cc.adoc
+
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X1, (SIZE_T **)&contextPointers->Ra);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X3, (SIZE_T **)&contextPointers->Gp);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X4, (SIZE_T **)&contextPointers->Tp);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X8, (SIZE_T **)&contextPointers->Fp);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X9, (SIZE_T **)&contextPointers->S1);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X18, (SIZE_T **)&contextPointers->S2);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X19, (SIZE_T **)&contextPointers->S3);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X20, (SIZE_T **)&contextPointers->S4);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X21, (SIZE_T **)&contextPointers->S5);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X22, (SIZE_T **)&contextPointers->S6);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X23, (SIZE_T **)&contextPointers->S7);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X24, (SIZE_T **)&contextPointers->S8);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X25, (SIZE_T **)&contextPointers->S9);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X26, (SIZE_T **)&contextPointers->S10);
+    GetContextPointer(cursor, unwContext, UNW_RISCV_X27, (SIZE_T **)&contextPointers->S11);
+#elif (defined(HOST_UNIX) && defined(HOST_RISCV32))
     // https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/2d865a2964fe06bfc569ab00c74e152b582ed764/riscv-cc.adoc
 
     GetContextPointer(cursor, unwContext, UNW_RISCV_X1, (SIZE_T **)&contextPointers->Ra);

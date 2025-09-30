@@ -2089,6 +2089,135 @@ typedef struct _KNONVOLATILE_CONTEXT_POINTERS {
     PDWORD64 F31;
 } KNONVOLATILE_CONTEXT_POINTERS, *PKNONVOLATILE_CONTEXT_POINTERS;
 
+#elif defined(HOST_RISCV32)
+
+// Please refer to src/coreclr/pal/src/arch/riscv32/asmconstants.h
+#define CONTEXT_RISCV32 0x02000000L
+
+#define CONTEXT_CONTROL (CONTEXT_RISCV32 | 0x1)
+#define CONTEXT_INTEGER (CONTEXT_RISCV32 | 0x2)
+#define CONTEXT_FLOATING_POINT  (CONTEXT_RISCV32 | 0x4)
+#define CONTEXT_DEBUG_REGISTERS (CONTEXT_RISCV32 | 0x8)
+
+#define CONTEXT_FULL (CONTEXT_CONTROL | CONTEXT_INTEGER | CONTEXT_FLOATING_POINT)
+
+#define CONTEXT_ALL (CONTEXT_CONTROL | CONTEXT_INTEGER | CONTEXT_FLOATING_POINT | CONTEXT_DEBUG_REGISTERS)
+
+#define CONTEXT_EXCEPTION_ACTIVE 0x8000000
+#define CONTEXT_SERVICE_ACTIVE 0x10000000
+#define CONTEXT_EXCEPTION_REQUEST 0x40000000
+#define CONTEXT_EXCEPTION_REPORTING 0x80000000
+
+//
+// This flag is set by the unwinder if it has unwound to a call
+// site, and cleared whenever it unwinds through a trap frame.
+// It is used by language-specific exception handlers to help
+// differentiate exception scopes during dispatching.
+//
+
+#define CONTEXT_UNWOUND_TO_CALL 0x20000000
+
+// begin_ntoshvp
+
+//
+// Specify the number of breakpoints and watchpoints that the OS
+// will track. Architecturally, RISCV32 supports up to 16. In practice,
+// however, almost no one implements more than 4 of each.
+//
+
+#define RISCV32_MAX_BREAKPOINTS     8
+#define RISCV32_MAX_WATCHPOINTS     2
+
+typedef struct DECLSPEC_ALIGN(16) _CONTEXT {
+
+    //
+    // Control flags.
+    //
+
+    /* +0x000 */ DWORD ContextFlags;
+
+    //
+    // Integer registers.
+    //
+    DWORD R0;
+    DWORD Ra;
+    DWORD Sp;
+    DWORD Gp;
+    DWORD Tp;
+    DWORD T0;
+    DWORD T1;
+    DWORD T2;
+    DWORD Fp;
+    DWORD S1;
+    DWORD A0;
+    DWORD A1;
+    DWORD A2;
+    DWORD A3;
+    DWORD A4;
+    DWORD A5;
+    DWORD A6;
+    DWORD A7;
+    DWORD S2;
+    DWORD S3;
+    DWORD S4;
+    DWORD S5;
+    DWORD S6;
+    DWORD S7;
+    DWORD S8;
+    DWORD S9;
+    DWORD S10;
+    DWORD S11;
+    DWORD T3;
+    DWORD T4;
+    DWORD T5;
+    DWORD T6;
+    DWORD Pc;
+
+    //
+    // Floating Point Registers
+    //
+    // TODO-RISCV64: support the SIMD.
+    /* FIXME: multi float support */
+    ULONGLONG F[32];
+    DWORD Fcsr;
+} CONTEXT, *PCONTEXT, *LPCONTEXT;
+
+//
+// Nonvolatile context pointer record.
+//
+
+typedef struct _KNONVOLATILE_CONTEXT_POINTERS {
+
+    PDWORD S1;
+    PDWORD S2;
+    PDWORD S3;
+    PDWORD S4;
+    PDWORD S5;
+    PDWORD S6;
+    PDWORD S7;
+    PDWORD S8;
+    PDWORD S9;
+    PDWORD S10;
+    PDWORD S11;
+    PDWORD Fp;
+    PDWORD Gp;
+    PDWORD Tp;
+    PDWORD Ra;
+
+    PDWORD F8;
+    PDWORD F9;
+    PDWORD F18;
+    PDWORD F19;
+    PDWORD F20;
+    PDWORD F21;
+    PDWORD F22;
+    PDWORD F23;
+    PDWORD F24;
+    PDWORD F25;
+    PDWORD F26;
+    PDWORD F27;
+} KNONVOLATILE_CONTEXT_POINTERS, *PKNONVOLATILE_CONTEXT_POINTERS;
+
 #elif defined(HOST_RISCV64)
 
 // Please refer to src/coreclr/pal/src/arch/riscv64/asmconstants.h
@@ -2597,6 +2726,8 @@ PALIMPORT BOOL PALAPI PAL_GetUnwindInfoSize(SIZE_T baseAddress, ULONG64 ehFrameH
 #elif defined(__linux__) && defined(__loongarch64)
 #define PAL_CS_NATIVE_DATA_SIZE 96
 #elif defined(__linux__) && defined(__riscv) && __riscv_xlen == 64
+#define PAL_CS_NATIVE_DATA_SIZE 96
+#elif defined(__linux__) && defined(__riscv) && __riscv_xlen == 32
 #define PAL_CS_NATIVE_DATA_SIZE 96
 #elif defined(__HAIKU__) && defined(__x86_64__)
 #define PAL_CS_NATIVE_DATA_SIZE 56
@@ -3381,12 +3512,28 @@ Define_InterlockMethod(
     __sync_add_and_fetch(lpAddend, value)
 )
 
+#ifdef HOST_RISCV32
+
+inline LONGLONG InterlockedAdd64(IN OUT LONGLONG volatile *lpAddend, IN LONGLONG value)
+{
+    LONGLONG Old;
+
+    Old = *lpAddend;
+    Old += value;
+    *lpAddend = Old;
+    return Old;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedAdd64(IN OUT LONGLONG volatile *lpAddend, IN LONGLONG value),
     InterlockedAdd64(lpAddend, value),
     __sync_add_and_fetch(lpAddend, value)
 )
+
+#endif
 
 /*++
 Function:
@@ -3414,12 +3561,30 @@ Define_InterlockMethod(
     __sync_add_and_fetch(lpAddend, (LONG)1)
 )
 
+#if defined(HOST_RISCV32)
+
+inline LONGLONG InterlockedIncrement64(IN OUT LONGLONG volatile *lpAddend)
+{
+    LONGLONG Old;
+
+    Old = *lpAddend;
+    Old++;
+    *lpAddend = Old;
+    return Old;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedIncrement64(IN OUT LONGLONG volatile *lpAddend),
     InterlockedIncrement64(lpAddend),
     __sync_add_and_fetch(lpAddend, (LONGLONG)1)
 )
+
+#endif
+
+
 
 /*++
 Function:
@@ -3449,12 +3614,29 @@ Define_InterlockMethod(
 
 #define InterlockedDecrementRelease InterlockedDecrement
 
+#ifdef HOST_RISCV32
+
+inline LONGLONG InterlockedDecrement64(IN OUT LONGLONG volatile *lpAddend)
+{
+    LONGLONG Old;
+
+    Old = *lpAddend;
+    Old--;
+    *lpAddend = Old;
+    return Old;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedDecrement64(IN OUT LONGLONG volatile *lpAddend),
     InterlockedDecrement64(lpAddend),
     __sync_sub_and_fetch(lpAddend, (LONGLONG)1)
 )
+
+#endif
+
 
 /*++
 Function:
@@ -3497,6 +3679,17 @@ inline LONGLONG InterlockedExchange64(LONGLONG volatile * Target, LONGLONG Value
         Old = *Target;
     } while (__sync_val_compare_and_swap(Target, Old, Value) != Old);
 
+    return Old;
+}
+
+#elif defined(HOST_RISCV32)
+
+inline LONGLONG InterlockedExchange64(IN OUT LONGLONG volatile *lpAddend, IN LONGLONG value)
+{
+    LONGLONG Old;
+
+    Old = *lpAddend;
+    *lpAddend = value;
     return Old;
 }
 
@@ -3548,6 +3741,21 @@ Define_InterlockMethod(
 #define InterlockedCompareExchangeAcquire InterlockedCompareExchange
 #define InterlockedCompareExchangeRelease InterlockedCompareExchange
 
+#if defined(HOST_RISCV32)
+
+inline LONGLONG InterlockedCompareExchange64(IN OUT LONGLONG volatile *Destination, IN LONGLONG Exchange, IN LONGLONG Comperand)
+{
+    LONGLONG Original;
+
+    Original = *Destination;
+    if (Original == Comperand) {
+        *Destination = Exchange;
+    }
+    return Original;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedCompareExchange64(IN OUT LONGLONG volatile *Destination, IN LONGLONG Exchange, IN LONGLONG Comperand),
@@ -3557,6 +3765,8 @@ Define_InterlockMethod(
         Comperand, /* The value to be compared */
         Exchange /* The value to be stored */)
 )
+
+#endif
 
 /*++
 Function:
@@ -3582,12 +3792,28 @@ Define_InterlockMethod(
     __sync_fetch_and_add(Addend, Value)
 )
 
+#if defined(HOST_RISCV32)
+
+inline LONGLONG InterlockedExchangeAdd64(IN OUT LONGLONG volatile *Addend, IN LONGLONG Value)
+{
+    LONGLONG Old;
+
+    Old = *Addend;
+    *Addend = Old + Value;
+
+    return Old;
+}
+
+#else
+
 Define_InterlockMethod(
     LONGLONG,
     InterlockedExchangeAdd64(IN OUT LONGLONG volatile *Addend, IN LONGLONG Value),
     InterlockedExchangeAdd64(Addend, Value),
     __sync_fetch_and_add(Addend, Value)
 )
+
+#endif
 
 Define_InterlockMethod(
     LONG,
@@ -3649,6 +3875,9 @@ YieldProcessor()
     __asm__ __volatile__( "yield");
 #elif defined(HOST_LOONGARCH64)
     __asm__ volatile( "dbar 0;  \n");
+#elif defined(HOST_RISCV32)
+    // TODO-RISCV32-CQ: When Zihintpause is supported, replace with `pause` instruction.
+    __asm__ __volatile__(".word 0x0100000f");
 #elif defined(HOST_RISCV64)
     // TODO-RISCV64-CQ: When Zihintpause is supported, replace with `pause` instruction.
     __asm__ __volatile__(".word 0x0100000f");

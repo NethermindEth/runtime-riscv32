@@ -29,6 +29,7 @@ if(NOT DEFINED ANDROID_BUILD)
     EXISTS ${CROSS_ROOTFS}/usr/lib/gcc/ppc64le-alpine-linux-musl OR
     EXISTS ${CROSS_ROOTFS}/usr/lib/gcc/i586-alpine-linux-musl OR
     EXISTS ${CROSS_ROOTFS}/usr/lib/gcc/x86_64-alpine-linux-musl OR
+    EXISTS ${CROSS_ROOTFS}/usr/lib/gcc/riscv32-alpine-linux-musl OR
     EXISTS ${CROSS_ROOTFS}/usr/lib/gcc/riscv64-alpine-linux-musl)
 
     set(ALPINE_LINUX 1)
@@ -77,7 +78,7 @@ if(DARWIN AND NOT DEFINED ANDROID_BUILD)
   else()
     message(FATAL_ERROR "Arch is ${TARGET_ARCH_NAME}. Only arm64 or x64 is supported for OSX cross build!")
   endif()
-elseif(DEFINED ANDROID_BUILD OR TARGET_ARCH_NAME MATCHES "^(armel|arm|armv6|arm64|loongarch64|riscv64|s390x|ppc64le|x86|x64)$" OR FREEBSD OR ILLUMOS OR TIZEN OR HAIKU)
+elseif(DEFINED ANDROID_BUILD OR TARGET_ARCH_NAME MATCHES "^(armel|arm|armv6|arm64|loongarch64|riscv32|riscv64|s390x|ppc64le|x86|x64)$" OR FREEBSD OR ILLUMOS OR TIZEN OR HAIKU)
   set_cache_value(HAS_POSIX_SEMAPHORES_EXITCODE 0)
   set_cache_value(HAVE_CLOCK_MONOTONIC_COARSE_EXITCODE 0)
   set_cache_value(HAVE_CLOCK_MONOTONIC_EXITCODE 0)
@@ -129,6 +130,6 @@ elseif(NOT WIN32)
   message(FATAL_ERROR "Unsupported platform. OS: ${CMAKE_SYSTEM_NAME}, arch: ${TARGET_ARCH_NAME}")
 endif()
 
-if(TARGET_ARCH_NAME MATCHES "^(x86|x64|s390x|armv6|loongarch64|riscv64|ppc64le)$")
+if(TARGET_ARCH_NAME MATCHES "^(x86|x64|s390x|armv6|loongarch64|riscv32|riscv64|ppc64le)$")
   set_cache_value(HAVE_FUNCTIONAL_PTHREAD_ROBUST_MUTEXES_EXITCODE 0)
 endif()

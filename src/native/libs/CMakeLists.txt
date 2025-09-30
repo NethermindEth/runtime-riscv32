@@ -142,8 +142,9 @@ if (CLR_CMAKE_TARGET_UNIX OR CLR_CMAKE_TARGET_BROWSER OR CLR_CMAKE_TARGET_WASI)
     endif ()
 
     add_subdirectory(System.Native)
-    add_subdirectory(System.Globalization.Native)
-
+    if (NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
+        add_subdirectory(System.Globalization.Native)
+    endif ()
     if (CLR_CMAKE_TARGET_BROWSER OR CLR_CMAKE_TARGET_WASI)
         # skip for now
     elseif (CLR_CMAKE_TARGET_MACCATALYST)
@@ -154,6 +155,9 @@ if (CLR_CMAKE_TARGET_UNIX OR CLR_CMAKE_TARGET_BROWSER OR CLR_CMAKE_TARGET_WASI)
         add_subdirectory(System.Net.Security.Native)
         # System.Security.Cryptography.Native is intentionally disabled on iOS
         # it is only used for interacting with OpenSSL which isn't useful there
+    elseif (CLR_CMAKE_TARGET_ARCH_RISCV32)
+        #add_subdirectory(System.Net.Security.Native)
+        # Not present in RISCV-32 at the moment
     elseif (CLR_CMAKE_TARGET_TVOS)
         #add_subdirectory(System.Net.Security.Native) # no gssapi on tvOS, see https://developer.apple.com/documentation/gss
         # System.Security.Cryptography.Native is intentionally disabled on tvOS

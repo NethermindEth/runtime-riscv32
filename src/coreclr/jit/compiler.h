@@ -568,9 +568,9 @@ public:
     unsigned char lvIsLastUseCopyOmissionCandidate : 1;
 #endif // FEATURE_IMPLICIT_BYREFS
 
-#if defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64)
+#if defined(TARGET_RISCV32) || defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64)
     unsigned char lvIsSplit : 1; // Set if the argument is split across last integer register and stack.
-#endif                           // defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64)
+#endif                           // defined(TARGET_RISCV32) || defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64)
 
     unsigned char lvSingleDef : 1; // variable has a single def. Used to identify ref type locals that can get type
                                    // updates
@@ -1862,7 +1862,7 @@ struct FuncInfoDsc
     emitLocation* coldStartLoc; // locations for the cold section, if there is one.
     emitLocation* coldEndLoc;
 
-#elif defined(TARGET_ARMARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#elif defined(TARGET_ARMARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
 
     UnwindInfo  uwi;     // Unwind information for this function/funclet's hot  section
     UnwindInfo* uwiCold; // Unwind information for this function/funclet's cold section
@@ -1877,7 +1877,7 @@ struct FuncInfoDsc
     emitLocation* coldStartLoc; // locations for the cold section, if there is one.
     emitLocation* coldEndLoc;
 
-#endif // TARGET_ARMARCH || TARGET_LOONGARCH64 || TARGET_RISCV64
+#endif // TARGET_ARMARCH || TARGET_LOONGARCH64 || TARGET_RISCV32 || TARGET_RISCV64
 
 #if defined(FEATURE_CFI_SUPPORT)
     jitstd::vector<CFI_CODE>* cfiCodes;
@@ -8608,6 +8608,9 @@ public:
 #elif defined(TARGET_LOONGARCH64)
             reg     = REG_T8;
             regMask = RBM_T8;
+#elif defined(TARGET_RISCV32)
+            reg     = REG_T5;
+            regMask = RBM_T5;
 #elif defined(TARGET_RISCV64)
             reg     = REG_T5;
             regMask = RBM_T5;
@@ -9013,6 +9016,15 @@ public:
     void unwindSaveRegPair(regNumber reg1, regNumber reg2, int offset);
     void unwindReturn(regNumber reg);
 #endif // defined(TARGET_LOONGARCH64)
+
+#if defined(TARGET_RISCV32)
+    void unwindNop();
+    void unwindPadding(); // Generate a sequence of unwind NOP codes representing instructions between the last
+                          // instruction and the current location.
+    void unwindSaveReg(regNumber reg, int offset);
+    void unwindSaveRegPair(regNumber reg1, regNumber reg2, int offset);
+    void unwindReturn(regNumber reg);
+#endif // defined(TARGET_RISCV32)
 
 #if defined(TARGET_RISCV64)
     void unwindNop();
@@ -9747,6 +9759,7 @@ public:
         // | arm64       |   256  |   128  | ldp/stp (2x128bit)
         // | arm         |    32  |    16  | no SIMD support
         // | loongarch64 |    64  |    32  | no SIMD support
+        // | riscv32     |    64  |    32  | no SIMD support
         // | riscv64     |    64  |    32  | no SIMD support
         //
         // We might want to use a different multiplier for truly hot/cold blocks based on PGO data
@@ -11209,7 +11222,7 @@ public:
 
     unsigned compArgSize; // total size of arguments in bytes (including register args (lvIsRegArg))
 
-#if defined(TARGET_ARM) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARM) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
     bool compHasSplitParam;
 #endif
 
@@ -11470,7 +11483,7 @@ protected:
     void compSetProcessor();
     void compInitDebuggingInfo();
     void compSetOptimizationLevel();
-#if defined(TARGET_ARMARCH) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARMARCH) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
     bool compRsvdRegCheck(FrameLayoutState curState);
 #endif
     void compCompile(void** methodCodePtr, uint32_t* methodCodeSize, JitFlags* compileFlags);
@@ -11795,7 +11808,7 @@ public:
     void GetStructTypeOffset(
         CORINFO_CLASS_HANDLE typeHnd, var_types* type0, var_types* type1, uint8_t* offset0, uint8_t* offset1);
 
-#elif defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64)
+#elif defined(TARGET_RISCV32) || defined(TARGET_RISCV64) || defined(TARGET_LOONGARCH64)
     typedef JitHashTable<CORINFO_CLASS_HANDLE, JitPtrKeyFuncs<struct CORINFO_CLASS_STRUCT_>, CORINFO_FPSTRUCT_LOWERING*>
                                      FpStructLoweringMap;
     FpStructLoweringMap*             m_fpStructLoweringCache = nullptr;
@@ -12776,6 +12789,10 @@ const instruction INS_MULADD     = INS_fmadd_d; // NOTE: default is double.
 const instruction INS_ABS        = INS_fabs_d;  // NOTE: default is double.
 const instruction INS_SQRT       = INS_fsqrt_d; // NOTE: default is double.
 #endif                                          // TARGET_LOONGARCH64
+
+#ifdef TARGET_RISCV32
+const instruction INS_BREAKPOINT = INS_ebreak;
+#endif // TARGET_RISCV32
 
 #ifdef TARGET_RISCV64
 const instruction INS_BREAKPOINT = INS_ebreak;

@@ -627,6 +627,13 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
                             return ((_argSize > _transitionBlock.EnregisteredParamTypeMaxSize) || _transitionBlock.IsArgPassedByRef(_argTypeHandle));
                         }
                         return false;
+                    case TargetArchitecture.RiscV32:
+                        if (_argType == CorElementType.ELEMENT_TYPE_VALUETYPE)
+                        {
+                            Debug.Assert(!_argTypeHandle.IsNull());
+                            return ((_argSize > _transitionBlock.EnregisteredParamTypeMaxSize) || _transitionBlock.IsArgPassedByRef(_argTypeHandle));
+                        }
+                        return false;
                     case TargetArchitecture.RiscV64:
                         if (_argType == CorElementType.ELEMENT_TYPE_VALUETYPE)
                         {
@@ -810,6 +817,7 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
                         break;
 
                     case TargetArchitecture.LoongArch64:
+                    case TargetArchitecture.RiscV32:
                     case TargetArchitecture.RiscV64:
                         _rvLa64IdxGenReg = numRegistersUsed;
                         _rvLa64OfsStack = 0;
@@ -1293,6 +1301,7 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
                     }
 
                 case TargetArchitecture.LoongArch64:
+                case TargetArchitecture.RiscV32:
                 case TargetArchitecture.RiscV64:
                     {
                         if (IsVarArg)
@@ -1684,6 +1693,7 @@ namespace ILCompiler.DependencyAnalysis.ReadyToRun
                     }
 
                 case TargetArchitecture.LoongArch64:
+                case TargetArchitecture.RiscV32:
                 case TargetArchitecture.RiscV64:
                     {
                         if (_hasArgLocDescForStructInRegs)

@@ -90,6 +90,9 @@ namespace ILCompiler.PEWriter
                 case Internal.TypeSystem.TargetArchitecture.LoongArch64:
                     return Machine.LoongArch64;
 
+                case Internal.TypeSystem.TargetArchitecture.RiscV32:
+                    return Machine.RiscV32;
+
                 case Internal.TypeSystem.TargetArchitecture.RiscV64:
                     return Machine.RiscV64;
 

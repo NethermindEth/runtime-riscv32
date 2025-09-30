@@ -42,6 +42,9 @@
 #if defined(HOST_LOONGARCH64)
 #error Cannot define both HOST_X86 and HOST_LOONGARCH64
 #endif
+#if defined(HOST_RISCV32)
+#error Cannot define both HOST_X86 and HOST_RISCV32
+#endif
 #if defined(HOST_RISCV64)
 #error Cannot define both HOST_X86 and HOST_RISCV64
 #endif
@@ -57,6 +60,9 @@
 #endif
 #if defined(HOST_LOONGARCH64)
 #error Cannot define both HOST_AMD64 and HOST_LOONGARCH64
+#endif
+#if defined(HOST_RISCV32)
+#error Cannot define both HOST_AMD64 and HOST_RISCV32
 #endif
 #if defined(HOST_RISCV64)
 #error Cannot define both HOST_AMD64 and HOST_RISCV64
@@ -74,6 +80,9 @@
 #if defined(HOST_LOONGARCH64)
 #error Cannot define both HOST_ARM and HOST_LOONGARCH64
 #endif
+#if defined(HOST_RISCV32)
+#error Cannot define both HOST_ARM and HOST_RISCV32
+#endif
 #if defined(HOST_RISCV64)
 #error Cannot define both HOST_ARM and HOST_RISCV64
 #endif
@@ -89,6 +98,9 @@
 #endif
 #if defined(HOST_LOONGARCH64)
 #error Cannot define both HOST_ARM64 and HOST_LOONGARCH64
+#endif
+#if defined(HOST_RISCV32)
+#error Cannot define both HOST_ARM64 and HOST_RISCV32
 #endif
 #if defined(HOST_RISCV64)
 #error Cannot define both HOST_ARM64 and HOST_RISCV64
@@ -106,8 +118,30 @@
 #if defined(HOST_ARM64)
 #error Cannot define both HOST_LOONGARCH64 and HOST_ARM64
 #endif
+#if defined(HOST_RISCV32)
+#error Cannot define both HOST_LOONGARCH64 and HOST_RISCV32
+#endif
 #if defined(HOST_RISCV64)
 #error Cannot define both HOST_LOONGARCH64 and HOST_RISCV64
+#endif
+#elif defined(HOST_RISCV32)
+#if defined(HOST_X86)
+#error Cannot define both HOST_RISCV32 and HOST_X86
+#endif
+#if defined(HOST_AMD64)
+#error Cannot define both HOST_RISCV32 and HOST_AMD64
+#endif
+#if defined(HOST_ARM)
+#error Cannot define both HOST_RISCV32 and HOST_ARM
+#endif
+#if defined(HOST_ARM64)
+#error Cannot define both HOST_RISCV32 and HOST_ARM64
+#endif
+#if defined(HOST_LOONGARCH64)
+#error Cannot define both HOST_RISCV32 and HOST_LOONGARCH64
+#endif
+#if defined(HOST_RISCV64)
+#error Cannot define both HOST_RISCV32 and HOST_RISCV64
 #endif
 #elif defined(HOST_RISCV64)
 #if defined(HOST_X86)
@@ -121,6 +155,9 @@
 #endif
 #if defined(HOST_ARM64)
 #error Cannot define both HOST_RISCV64 and HOST_ARM64
+#endif
+#if defined(HOST_RISCV32)
+#error Cannot define both HOST_RISCV64 and HOST_RISCV32
 #endif
 #if defined(HOST_LOONGARCH64)
 #error Cannot define both HOST_RISCV64 and HOST_LOONGARCH64
@@ -142,6 +179,9 @@
 #if defined(TARGET_LOONGARCH64)
 #error Cannot define both TARGET_X86 and TARGET_LOONGARCH64
 #endif
+#if defined(TARGET_RISCV32)
+#error Cannot define both TARGET_X86 and TARGET_RISCV32
+#endif
 #if defined(TARGET_RISCV64)
 #error Cannot define both TARGET_X86 and TARGET_RISCV64
 #endif
@@ -157,6 +197,9 @@
 #endif
 #if defined(TARGET_LOONGARCH64)
 #error Cannot define both TARGET_AMD64 and TARGET_LOONGARCH64
+#endif
+#if defined(TARGET_RISCV32)
+#error Cannot define both TARGET_AMD64 and TARGET_RISCV32
 #endif
 #if defined(TARGET_RISCV64)
 #error Cannot define both TARGET_AMD64 and TARGET_RISCV64
@@ -174,6 +217,9 @@
 #if defined(TARGET_LOONGARCH64)
 #error Cannot define both TARGET_ARM and TARGET_LOONGARCH64
 #endif
+#if defined(TARGET_RISCV32)
+#error Cannot define both TARGET_ARM and TARGET_RISCV32
+#endif
 #if defined(TARGET_RISCV64)
 #error Cannot define both TARGET_ARM and TARGET_RISCV64
 #endif
@@ -189,6 +235,9 @@
 #endif
 #if defined(TARGET_LOONGARCH64)
 #error Cannot define both TARGET_ARM64 and TARGET_LOONGARCH64
+#endif
+#if defined(TARGET_RISCV32)
+#error Cannot define both TARGET_ARM64 and TARGET_RISCV32
 #endif
 #if defined(TARGET_RISCV64)
 #error Cannot define both TARGET_ARM64 and TARGET_RISCV64
@@ -206,9 +255,31 @@
 #if defined(TARGET_ARM64)
 #error Cannot define both TARGET_LOONGARCH64 and TARGET_ARM64
 #endif
+#if defined(TARGET_RISCV32)
+#error Cannot define both TARGET_LOONGARCH64 and TARGET_RISCV32
+#endif
+
 #if defined(TARGET_RISCV64)
 #error Cannot define both TARGET_LOONGARCH64 and TARGET_RISCV64
 #endif
+
+#elif defined(TARGET_RISCV32)
+#if defined(TARGET_X86)
+#error Cannot define both TARGET_RISCV32 and TARGET_X86
+#endif
+#if defined(TARGET_AMD64)
+#error Cannot define both TARGET_RISCV32 and TARGET_AMD64
+#endif
+#if defined(TARGET_ARM)
+#error Cannot define both TARGET_RISCV32 and TARGET_ARM
+#endif
+#if defined(TARGET_ARM64)
+#error Cannot define both TARGET_RISCV32 and TARGET_ARM64
+#endif
+#if defined(TARGET_LOONGARCH64)
+#error Cannot define both TARGET_RISCV32 and TARGET_LOONGARCH64
+#endif
+
 #elif defined(TARGET_RISCV64)
 #if defined(TARGET_X86)
 #error Cannot define both TARGET_RISCV64 and TARGET_X86
@@ -224,6 +295,9 @@
 #endif
 #if defined(TARGET_LOONGARCH64)
 #error Cannot define both TARGET_RISCV64 and TARGET_LOONGARCH64
+#endif
+#if defined(TARGET_RISCV32)
+#error Cannot define both TARGET_RISCV64 and TARGET_RISCV32
 #endif
 
 #else
@@ -275,6 +349,8 @@
 #define IMAGE_FILE_MACHINE_TARGET IMAGE_FILE_MACHINE_ARM64 // 0xAA64
 #elif defined(TARGET_LOONGARCH64)
 #define IMAGE_FILE_MACHINE_TARGET IMAGE_FILE_MACHINE_LOONGARCH64 // 0x6264
+#elif defined(TARGET_RISCV32)
+#define IMAGE_FILE_MACHINE_TARGET IMAGE_FILE_MACHINE_RISCV32 // 0x5032
 #elif defined(TARGET_RISCV64)
 #define IMAGE_FILE_MACHINE_TARGET IMAGE_FILE_MACHINE_RISCV64 // 0x5064
 #else
@@ -346,7 +422,7 @@ typedef ptrdiff_t ssize_t;
 #endif // TARGET_LOONGARCH64
 
 #if defined(UNIX_AMD64_ABI) || !defined(TARGET_64BIT) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) ||       \
-    defined(TARGET_RISCV64)
+    defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
 #define FEATURE_PUT_STRUCT_ARG_STK 1
 #endif
 
@@ -358,7 +434,7 @@ typedef ptrdiff_t ssize_t;
 #define UNIX_AMD64_ABI_ONLY(x)
 #endif // defined(UNIX_AMD64_ABI)
 
-#if defined(UNIX_AMD64_ABI) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(UNIX_AMD64_ABI) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
 #define MULTIREG_HAS_SECOND_GC_RET             1
 #define MULTIREG_HAS_SECOND_GC_RET_ONLY_ARG(x) , x
 #define MULTIREG_HAS_SECOND_GC_RET_ONLY(x)     x
@@ -372,7 +448,7 @@ typedef ptrdiff_t ssize_t;
 // the official Arm64 ABI.
 // Case: splitting 16 byte struct between x7 and stack
 // LoongArch64's ABI supports FEATURE_ARG_SPLIT which splitting 16 byte struct between a7 and stack.
-#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_ARM) || defined(TARGET_ARM64) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
 #define FEATURE_ARG_SPLIT 1
 #else
 #define FEATURE_ARG_SPLIT 0

@@ -21,6 +21,7 @@ public enum PerfMapArchitectureToken : uint
     X86 = 4,
     RiscV64 = 5,
     LoongArch64 = 6,
+    RiscV32 = 7,
 }
 
 public enum PerfMapOSToken : uint

@@ -26,6 +26,8 @@ if (HAVE_LIBPTHREAD)
   set(PTHREAD_LIBRARY pthread)
 elseif (HAVE_PTHREAD_IN_LIBC)
   set(PTHREAD_LIBRARY c)
+else ()
+  set(PTHREAD_LIBRARY pthread)
 endif()
 
 check_library_exists(${PTHREAD_LIBRARY} pthread_attr_get_np "" HAVE_PTHREAD_ATTR_GET_NP)

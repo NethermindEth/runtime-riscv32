@@ -42,6 +42,10 @@ class AsmOffsets
     public const int SIZEOF__REGDISPLAY = 0x5fc;
     public const int OFFSETOF__REGDISPLAY__SP = 0x5f0;
     public const int OFFSETOF__REGDISPLAY__ControlPC = 0x5f4;
+#elif TARGET_RISCV32
+    public const int SIZEOF__REGDISPLAY = 0x470;
+    public const int OFFSETOF__REGDISPLAY__SP = 0x41c;
+    public const int OFFSETOF__REGDISPLAY__ControlPC = 0x420;
 #elif TARGET_RISCV64
     public const int SIZEOF__REGDISPLAY = 0x6C0;
     public const int OFFSETOF__REGDISPLAY__SP = 0x628;
@@ -94,6 +98,10 @@ class AsmOffsets
     public const int SIZEOF__REGDISPLAY = 0x5f8;
     public const int OFFSETOF__REGDISPLAY__SP = 0x5ec;
     public const int OFFSETOF__REGDISPLAY__ControlPC = 0x5f0;
+#elif TARGET_RISCV32
+    public const int SIZEOF__REGDISPLAY = 0x460;
+    public const int OFFSETOF__REGDISPLAY__SP = 0x418;
+    public const int OFFSETOF__REGDISPLAY__ControlPC = 0x41c;
 #elif TARGET_RISCV64
     public const int SIZEOF__REGDISPLAY = 0x6B0;
     public const int OFFSETOF__REGDISPLAY__SP = 0x620;
@@ -134,6 +142,8 @@ class AsmOffsets
     public const int SIZEOF__PAL_LIMITED_CONTEXT = 0x1a0;
 #elif TARGET_X86
     public const int SIZEOF__PAL_LIMITED_CONTEXT = 0x2cc;
+#elif TARGET_RISCV32
+    public const int SIZEOF__PAL_LIMITED_CONTEXT = 0x190;
 #elif TARGET_RISCV64
     public const int SIZEOF__PAL_LIMITED_CONTEXT = 0x220;
 #elif TARGET_LOONGARCH64
@@ -152,6 +162,10 @@ class AsmOffsets
 #elif TARGET_X86
     public const int OFFSETOF__PAL_LIMITED_CONTEXT__IP = 0xb8;
     public const int OFFSETOF__PAL_LIMITED_CONTEXT__FP = 0xb4;
+#elif TARGET_RISCV32
+    public const int OFFSETOF__PAL_LIMITED_CONTEXT__IP = 0x84;
+    // FIXME
+    public const int OFFSETOF__PAL_LIMITED_CONTEXT__FP = 0x24;
 #elif TARGET_RISCV64
     public const int OFFSETOF__PAL_LIMITED_CONTEXT__IP = 0x108;
     public const int OFFSETOF__PAL_LIMITED_CONTEXT__FP = 0x48;
@@ -200,6 +214,9 @@ class AsmOffsets
 #elif TARGET_X86
     static_assert_no_msg(offsetof(CONTEXT, Eip) == AsmOffsets::OFFSETOF__PAL_LIMITED_CONTEXT__IP);
     static_assert_no_msg(offsetof(CONTEXT, Ebp) == AsmOffsets::OFFSETOF__PAL_LIMITED_CONTEXT__FP);
+#elif TARGET_RISCV32
+    static_assert_no_msg(offsetof(CONTEXT, Pc) == AsmOffsets::OFFSETOF__PAL_LIMITED_CONTEXT__IP);
+    static_assert_no_msg(offsetof(CONTEXT, Fp) == AsmOffsets::OFFSETOF__PAL_LIMITED_CONTEXT__FP);
 #elif TARGET_RISCV64
     static_assert_no_msg(offsetof(CONTEXT, Pc) == AsmOffsets::OFFSETOF__PAL_LIMITED_CONTEXT__IP);
     static_assert_no_msg(offsetof(CONTEXT, Fp) == AsmOffsets::OFFSETOF__PAL_LIMITED_CONTEXT__FP);

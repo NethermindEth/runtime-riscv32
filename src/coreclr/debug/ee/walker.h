@@ -232,6 +232,19 @@ public:
     static BOOL  DecodePCRelativeBranchInst(PT_CONTEXT context,const PRD_TYPE opcode, PCODE& offset, WALK_TYPE& walk);
     static BOOL  DecodeJumpInst(const PRD_TYPE opcode, int& RegNum, PCODE& offset, WALK_TYPE& walk);
 };
+#elif defined (TARGET_RISCV32)
+#include "controller.h"
+class NativeWalker : public Walker
+{
+public:
+    void Init(const BYTE *ip, REGDISPLAY *pregisters)
+    {
+        Walker::Init(ip, pregisters);
+    }
+    void Decode();
+    uint64_t GetReg(uint32_t reg);
+};
+
 #elif defined (TARGET_RISCV64)
 #include "controller.h"
 class NativeWalker : public Walker

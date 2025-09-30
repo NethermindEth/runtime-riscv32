@@ -45,6 +45,10 @@ case "$CPUName" in
         arch=loongarch64
         ;;
 
+    riscv32)
+        arch=riscv32
+        ;;
+
     riscv64)
         arch=riscv64
         ;;

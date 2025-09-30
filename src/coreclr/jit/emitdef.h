@@ -14,6 +14,8 @@
 #include "emitarm64.h"
 #elif defined(TARGET_LOONGARCH64)
 #include "emitloongarch64.h"
+#elif defined(TARGET_RISCV32)
+#include "emitriscv32.h"
 #elif defined(TARGET_RISCV64)
 #include "emitriscv64.h"
 #else

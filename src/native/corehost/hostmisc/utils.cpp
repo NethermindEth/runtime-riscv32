@@ -198,6 +198,7 @@ namespace
         _X("armv6"),
         _X("loongarch64"),
         _X("ppc64le"),
+        _X("riscv32"),
         _X("riscv64"),
         _X("s390x"),
         _X("x64"),
@@ -220,6 +221,8 @@ pal::architecture get_current_arch()
     return pal::architecture::arm64;
 #elif defined(TARGET_LOONGARCH64)
     return pal::architecture::loongarch64;
+#elif defined(TARGET_RISCV32)
+    return pal::architecture::riscv32;
 #elif defined(TARGET_RISCV64)
     return pal::architecture::riscv64;
 #elif defined(TARGET_S390X)

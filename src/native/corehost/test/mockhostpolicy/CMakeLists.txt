@@ -1,7 +1,7 @@
 # Licensed to the .NET Foundation under one or more agreements.
 # The .NET Foundation licenses this file to you under the MIT license.
 
-add_library(mockhostpolicy SHARED mockhostpolicy.cpp)
+add_library(mockhostpolicy STATIC mockhostpolicy.cpp)
 
 target_link_libraries(mockhostpolicy PRIVATE hostmisc)
 

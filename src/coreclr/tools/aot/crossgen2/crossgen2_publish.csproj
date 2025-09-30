@@ -11,4 +11,10 @@
   </PropertyGroup>
 
   <Import Project="crossgen2.props" />
+
+  <PropertyGroup>
+    <AppHostSourcePath>$([MSBuild]::NormalizePath('$(DotNetHostBinDir)', 'apphost$(ExeSuffix)'))</AppHostSourcePath>
+    <SingleFileHostSourcePath>$([MSBuild]::NormalizePath('$(CoreCLRArtifactsPath)', 'corehost', 'singlefilehost$(ExeSuffix)'))</SingleFileHostSourcePath>
+  </PropertyGroup>
+
 </Project>

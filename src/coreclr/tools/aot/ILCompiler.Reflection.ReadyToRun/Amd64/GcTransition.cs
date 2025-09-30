@@ -71,6 +71,10 @@ namespace ILCompiler.Reflection.ReadyToRun.Amd64
                         regType = typeof(LoongArch64.Registers);
                         break;
 
+                    case Machine.RiscV32:
+                        regType = typeof(RiscV32.Registers);
+                        break;
+
                     case Machine.RiscV64:
                         regType = typeof(RiscV64.Registers);
                         break;

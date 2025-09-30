@@ -57,5 +57,12 @@ namespace System.Runtime.InteropServices
         /// This value indicates RV64GC set of extensions.
         /// </remarks>
         RiscV64,
+        /// <summary>
+        /// A RiscV 32-bit processor architecture.
+        /// </summary>
+        /// <remarks>
+        /// This value indicates RV32 set of extensions.
+        /// </remarks>
+        RiscV32,
     }
 }

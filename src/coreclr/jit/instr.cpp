@@ -82,6 +82,10 @@ const char* CodeGen::genInsName(instruction ins)
         #define INST(id, nm, ldst, e1, msk, fmt) nm,
         #include "instrs.h"
 
+#elif defined(TARGET_RISCV32)
+        #define INST(id, nm, ldst, e1) nm,
+        #include "instrs.h"
+
 #elif defined(TARGET_RISCV64)
         #define INST(id, nm, ldst, e1) nm,
         #include "instrs.h"
@@ -481,6 +485,8 @@ void CodeGen::inst_RV(instruction ins, regNumber reg, var_types type, emitAttr s
 #ifdef TARGET_LOONGARCH64
     // inst_RV is not used for LoongArch64, so there is no need to define `emitIns_R`.
     NYI_LOONGARCH64("inst_RV-----unused on LOONGARCH64----");
+#elif defined(TARGET_RISCV32)
+    NYI_RISCV32("inst_RV-----unused on RISCV32----");
 #elif defined(TARGET_RISCV64)
     NYI_RISCV64("inst_RV-----unused on RISCV64----");
 #else
@@ -499,7 +505,7 @@ void CodeGen::inst_Mov(var_types dstType,
                        emitAttr  size,
                        insFlags  flags /* = INS_FLAGS_DONT_CARE */)
 {
-#if defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
     if (isFloatRegType(dstType) != genIsValidFloatReg(dstReg))
     {
         if (dstType == TYP_FLOAT)
@@ -522,6 +528,7 @@ void CodeGen::inst_Mov(var_types dstType,
         {
             NYI_LOONGARCH64("CodeGen::inst_Mov dstType");
             NYI_RISCV64("CodeGen::inst_Mov dstType");
+            NYI_RISCV32("CodeGen::inst_Mov dstType");
         }
     }
 #endif
@@ -614,7 +621,7 @@ void CodeGen::inst_RV_RV_RV(instruction ins,
 {
 #ifdef TARGET_ARM
     GetEmitter()->emitIns_R_R_R(ins, size, reg1, reg2, reg3, flags);
-#elif defined(TARGET_XARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#elif defined(TARGET_XARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
     GetEmitter()->emitIns_R_R_R(ins, size, reg1, reg2, reg3);
 #else
     NYI("inst_RV_RV_RV");
@@ -690,7 +697,7 @@ void CodeGen::inst_RV_IV(
     assert(ins != INS_tst);
     assert(ins != INS_mov);
     GetEmitter()->emitIns_R_R_I(ins, size, reg, reg, val);
-#elif defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#elif defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
     GetEmitter()->emitIns_R_R_I(ins, size, reg, reg, val);
 #else // !TARGET_ARM
 #ifdef TARGET_AMD64
@@ -1871,6 +1878,29 @@ instruction CodeGenInterface::ins_Load(var_types srcType, bool aligned /*=false*
         {
             ins = INS_ld_d; // default ld_d.
         }
+#elif defined(TARGET_RISCV32)
+        if (varTypeIsByte(srcType))
+        {
+            if (varTypeIsUnsigned(srcType))
+                ins = INS_lbu;
+            else
+                ins = INS_lb;
+        }
+        else if (varTypeIsShort(srcType))
+        {
+            if (varTypeIsUnsigned(srcType))
+                ins = INS_lhu;
+            else
+                ins = INS_lh;
+        }
+        else if (TYP_INT == srcType)
+        {
+            ins = INS_lw;
+        }
+        else
+        {
+            ins = INS_lw; // default lw.
+        }
 #elif defined(TARGET_RISCV64)
         if (varTypeIsByte(srcType))
         {
@@ -1953,6 +1983,19 @@ instruction CodeGenInterface::ins_Load(var_types srcType, bool aligned /*=false*
         assert(srcType == TYP_FLOAT);
         return INS_fld_s;
     }
+#elif defined(TARGET_RISCV32)
+    assert(!varTypeIsSIMD(srcType));
+
+    // FIXME: different floating point size
+    if (srcType == TYP_DOUBLE)
+    {
+        return INS_flw; // FIXME
+    }
+    else
+    {
+        assert(srcType == TYP_FLOAT);
+        return INS_flw;
+    }
 #elif defined(TARGET_RISCV64)
     assert(!varTypeIsSIMD(srcType));
 
@@ -1983,7 +2026,7 @@ instruction CodeGen::ins_Copy(var_types dstType)
 
     if (varTypeUsesIntReg(dstType))
     {
-#if defined(TARGET_XARCH) || defined(TARGET_ARMARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV64)
+#if defined(TARGET_XARCH) || defined(TARGET_ARMARCH) || defined(TARGET_LOONGARCH64) || defined(TARGET_RISCV32) || defined(TARGET_RISCV64)
         return INS_mov;
 #else
         NYI("ins_Copy");
@@ -2029,6 +2072,19 @@ instruction CodeGen::ins_Copy(var_types dstType)
     {
         assert(dstType == TYP_FLOAT);
         return INS_fmov_s;
+    }
+#elif defined(TARGET_RISCV32)
+    assert(!varTypeIsSIMD(dstType));
+
+    // FIXME: fix floating point size
+    if (dstType == TYP_DOUBLE)
+    {
+        return INS_fsgnj_s;
+    }
+    else
+    {
+        assert(dstType == TYP_FLOAT);
+        return INS_fsgnj_s;
     }
 #elif defined(TARGET_RISCV64)
     assert(!varTypeIsSIMD(dstType));
@@ -2095,6 +2151,10 @@ instruction CodeGen::ins_Copy(regNumber srcReg, var_types dstType)
 #elif defined(TARGET_LOONGARCH64)
         assert(!varTypeIsSIMD(dstType));
         return EA_SIZE(emitActualTypeSize(dstType)) == EA_4BYTE ? INS_movfr2gr_s : INS_movfr2gr_d;
+#elif defined(TARGET_RISCV32)
+        assert(!varTypeIsSIMD(dstType));
+        // FIXME: floating point size
+        return EA_SIZE(emitActualTypeSize(dstType)) == EA_4BYTE ? INS_fmv_x_w : INS_fmv_x_w;
 #elif defined(TARGET_RISCV64)
         assert(!varTypeIsSIMD(dstType));
         return EA_SIZE(emitActualTypeSize(dstType)) == EA_4BYTE ? INS_fmv_x_w : INS_fmv_x_d;
@@ -2155,6 +2215,20 @@ instruction CodeGen::ins_Copy(regNumber srcReg, var_types dstType)
         assert(dstType == TYP_FLOAT);
         return INS_movgr2fr_w;
     }
+#elif defined(TARGET_RISCV32)
+    assert(!varTypeIsSIMD(dstType));
+    assert(!genIsValidFloatReg(srcReg));
+
+    // FIXME: floating point size
+    if (dstType == TYP_DOUBLE)
+    {
+        return INS_fmv_w_x;
+    }
+    else
+    {
+        assert(dstType == TYP_FLOAT);
+        return INS_fmv_w_x;
+    }
 #elif defined(TARGET_RISCV64)
     assert(!varTypeIsSIMD(dstType));
     assert(!genIsValidFloatReg(srcReg));
@@ -2206,6 +2280,15 @@ instruction CodeGenInterface::ins_Store(var_types dstType, bool aligned /*=false
             ins = aligned ? INS_stx_w : INS_st_w;
         else
             ins = aligned ? INS_stx_d : INS_st_d;
+#elif defined(TARGET_RISCV32)
+        if (varTypeIsByte(dstType))
+            ins = INS_sb;
+        else if (varTypeIsShort(dstType))
+            ins = INS_sh;
+        else if (TYP_INT == dstType)
+            ins = INS_sw;
+        else
+            ins = INS_sw;
 #elif defined(TARGET_RISCV64)
         if (varTypeIsByte(dstType))
             ins = INS_sb;
@@ -2272,6 +2355,19 @@ instruction CodeGenInterface::ins_Store(var_types dstType, bool aligned /*=false
     {
         assert(dstType == TYP_FLOAT);
         return aligned ? INS_fstx_s : INS_fst_s;
+    }
+#elif defined(TARGET_RISCV32)
+    assert(!varTypeIsSIMD(dstType));
+
+    // FIXME: various floating point sizes
+    if (dstType == TYP_DOUBLE)
+    {
+        return INS_fsw;
+    }
+    else
+    {
+        assert(dstType == TYP_FLOAT);
+        return INS_fsw;
     }
 #elif defined(TARGET_RISCV64)
     assert(!varTypeIsSIMD(dstType));
@@ -2662,6 +2758,8 @@ void CodeGen::instGen_Set_Reg_To_Zero(emitAttr size, regNumber reg, insFlags fla
     GetEmitter()->emitIns_Mov(INS_mov, size, reg, REG_ZR, /* canSkip */ true);
 #elif defined(TARGET_LOONGARCH64)
     GetEmitter()->emitIns_R_R_I(INS_ori, size, reg, REG_R0, 0);
+#elif defined(TARGET_RISCV32)
+    GetEmitter()->emitIns_R_R_I(INS_addi, size, reg, REG_R0, 0);
 #elif defined(TARGET_RISCV64)
     GetEmitter()->emitIns_R_R_I(INS_addi, size, reg, REG_R0, 0);
 #else

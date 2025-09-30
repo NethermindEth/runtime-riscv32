@@ -75,6 +75,13 @@ namespace ILCompiler.DependencyAnalysis
                     loongarch64Emitter.Builder.AddSymbol(this);
                     return loongarch64Emitter.Builder.ToObjectData();
 
+                case TargetArchitecture.RiscV32:
+                    RiscV32.RiscV32Emitter riscv32Emitter = new RiscV32.RiscV32Emitter(factory, relocsOnly);
+                    EmitCode(factory, ref riscv32Emitter, relocsOnly);
+                    riscv32Emitter.Builder.RequireInitialAlignment(alignment);
+                    riscv32Emitter.Builder.AddSymbol(this);
+                    return riscv32Emitter.Builder.ToObjectData();
+
                 case TargetArchitecture.RiscV64:
                     RiscV64.RiscV64Emitter riscv64Emitter = new RiscV64.RiscV64Emitter(factory, relocsOnly);
                     EmitCode(factory, ref riscv64Emitter, relocsOnly);
@@ -92,6 +99,7 @@ namespace ILCompiler.DependencyAnalysis
         protected abstract void EmitCode(NodeFactory factory, ref ARM.ARMEmitter instructionEncoder, bool relocsOnly);
         protected abstract void EmitCode(NodeFactory factory, ref ARM64.ARM64Emitter instructionEncoder, bool relocsOnly);
         protected abstract void EmitCode(NodeFactory factory, ref LoongArch64.LoongArch64Emitter instructionEncoder, bool relocsOnly);
+        protected abstract void EmitCode(NodeFactory factory, ref RiscV32.RiscV32Emitter instructionEncoder, bool relocsOnly);
         protected abstract void EmitCode(NodeFactory factory, ref RiscV64.RiscV64Emitter instructionEncoder, bool relocsOnly);
     }
 }

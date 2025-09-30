@@ -184,7 +184,7 @@ int32_t SystemNative_LowLevelMonitor_TimedWait(LowLevelMonitor *monitor, int32_t
     assert(error == 0);
 
     timeoutTimeSpec.tv_sec = tv.tv_sec;
-    timeoutTimeSpec.tv_nsec = tv.tv_usec * 1000;
+    timeoutTimeSpec.tv_nsec = (long)tv.tv_usec * 1000;
 #endif
     uint64_t nanoseconds = (uint64_t)timeoutMilliseconds * 1000 * 1000 + (uint64_t)timeoutTimeSpec.tv_nsec;
     timeoutTimeSpec.tv_sec += nanoseconds / (1000 * 1000 * 1000);

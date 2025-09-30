@@ -287,6 +287,27 @@ public:
                                    WellKnownArg wellKnownParam);
 };
 
+class RiscV32Classifier
+{
+    const ClassifierInfo& m_info;
+    RegisterQueue         m_intRegs;
+    RegisterQueue         m_floatRegs;
+    unsigned              m_stackArgSize = 0;
+
+public:
+    RiscV32Classifier(const ClassifierInfo& info);
+
+    unsigned StackSize()
+    {
+        return m_stackArgSize;
+    }
+
+    ABIPassingInformation Classify(Compiler*    comp,
+                                   var_types    type,
+                                   ClassLayout* structLayout,
+                                   WellKnownArg wellKnownParam);
+};
+
 class RiscV64Classifier
 {
     const ClassifierInfo& m_info;
@@ -339,6 +360,8 @@ typedef SysVX64Classifier PlatformClassifier;
 typedef Arm64Classifier PlatformClassifier;
 #elif defined(TARGET_ARM)
 typedef Arm32Classifier PlatformClassifier;
+#elif defined(TARGET_RISCV32)
+typedef RiscV32Classifier PlatformClassifier;
 #elif defined(TARGET_RISCV64)
 typedef RiscV64Classifier PlatformClassifier;
 #elif defined(TARGET_LOONGARCH64)

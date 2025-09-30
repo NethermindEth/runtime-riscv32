@@ -24,6 +24,8 @@
 #define THUNK_SIZE  16
 #elif TARGET_LOONGARCH64
 #define THUNK_SIZE  16
+#elif TARGET_RISCV32
+#define THUNK_SIZE  16
 #elif TARGET_RISCV64
 #define THUNK_SIZE  12
 #else
@@ -255,6 +257,25 @@ EXTERN_C void* QCALLTYPE RhAllocateThunksMapping()
             pCurrentThunkAddress += 4;
 
             *((uint32_t*)pCurrentThunkAddress) = 0x4C000280;
+            pCurrentThunkAddress += 4;
+
+#elif defined(TARGET_RISCV32)
+
+            // auipc  t0, %hi(delta)      // Load upper immediate with address high bits
+            // lw     t1, %lo(delta)(t0)  // Load data from address in (t0 + lower immediate)
+            // jr     t1                  // Jump and don't link register
+
+            int delta = (int)(pCurrentDataAddress - pCurrentThunkAddress);
+            uint32_t deltaHi = (delta + 0x800) & 0xfffff000;
+            uint32_t deltaLo = delta << (32 - 12);
+
+            *((uint32_t*)pCurrentThunkAddress) = 0x00000297 | deltaHi;  // auipc
+            pCurrentThunkAddress += 4;
+
+            *((uint32_t*)pCurrentThunkAddress) = 0x0002A303 | deltaLo;  //  (lw t1, %lo(delta)(t0))
+            pCurrentThunkAddress += 4;
+
+            *((uint32_t*)pCurrentThunkAddress) = 0x00030067; // jr
             pCurrentThunkAddress += 4;
 
 #elif defined(TARGET_RISCV64)

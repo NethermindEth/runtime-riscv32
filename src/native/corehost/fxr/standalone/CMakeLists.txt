@@ -29,7 +29,7 @@ endif(CLR_CMAKE_TARGET_WIN32)
 
 add_compile_definitions(EXPORT_SHARED_API)
 
-add_library(hostfxr SHARED ${SOURCES})
+add_library(hostfxr STATIC ${SOURCES})
 
 add_version_info_to_target(hostfxr)
 

@@ -127,7 +127,7 @@ typedef cpuset_t cpu_set_t;
 #endif
 #endif // __APPLE__
 
-#if defined(HOST_ARM) || defined(HOST_ARM64) || defined(HOST_LOONGARCH64) || defined(HOST_RISCV64)
+#if defined(HOST_ARM) || defined(HOST_ARM64) || defined(HOST_LOONGARCH64) || defined(HOST_RISCV32) || defined(HOST_RISCV64)
 #define SYSCONF_GET_NUMPROCS _SC_NPROCESSORS_CONF
 #else
 #define SYSCONF_GET_NUMPROCS _SC_NPROCESSORS_ONLN
@@ -790,13 +790,13 @@ bool GCToOSInterface::GetWriteWatch(bool resetState, void* address, size_t size,
     return false;
 }
 
-bool ReadMemoryValueFromFile(const char* filename, uint64_t* val)
+bool ReadMemoryValueFromFile(const char* filename, size_t* val)
 {
     bool result = false;
     char* line = nullptr;
     size_t lineLen = 0;
     char* endptr = nullptr;
-    uint64_t num = 0, l, multiplier;
+    size_t num = 0, l, multiplier;
     FILE* file = nullptr;
 
     if (val == nullptr)
@@ -887,11 +887,11 @@ static void GetLogicalProcessorCacheSizeFromSysFs(size_t* cacheLevel, size_t* ca
     {
         path_to_size_file[index] = (char)(48 + i);
 
-        uint64_t cache_size_from_sys_file = 0;
+        size_t cache_size_from_sys_file = 0;
 
         if (ReadMemoryValueFromFile(path_to_size_file, &cache_size_from_sys_file))
         {
-            *cacheSize = std::max(*cacheSize, (size_t)cache_size_from_sys_file);
+            *cacheSize = std::max(*cacheSize, cache_size_from_sys_file);
 
             path_to_level_file[index] = (char)(48 + i);
             if (ReadMemoryValueFromFile(path_to_level_file, &level))

@@ -948,7 +948,7 @@ EXCEPTION_DISPOSITION
     PVOID DispatcherContext
     );
 
-#if defined(HOST_ARM)
+#if defined(HOST_ARM) || defined(HOST_RISCV32)
 
 typedef struct _DISPATCHER_CONTEXT {
     DWORD ControlPc;

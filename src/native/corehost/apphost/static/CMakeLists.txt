@@ -168,22 +168,29 @@ else()
     endif()
 
     LIST(APPEND NATIVE_LIBS
-        coreclr_static
+        coreclr_static)
 
-        System.Globalization.Native-Static
+    if(NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
+        LIST(APPEND NATIVE_LIBS
+             System.Globalization.Native-Static)
+    endif()
+
+    LIST(APPEND NATIVE_LIBS
         System.IO.Compression.Native-Static
         System.Native-Static
     )
 
-    if(NOT CLR_CMAKE_TARGET_ANDROID)
-        list(APPEND NATIVE_LIBS
-            System.Net.Security.Native-Static
-            System.Security.Cryptography.Native.OpenSsl-Static
-        )
-    else()
-        list(APPEND NATIVE_LIBS
-            System.Security.Cryptography.Native.Android-Static
-        )
+    if (NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
+        if(NOT CLR_CMAKE_TARGET_ANDROID)
+            list(APPEND NATIVE_LIBS
+                System.Net.Security.Native-Static
+                System.Security.Cryptography.Native.OpenSsl-Static
+            )
+        else()
+            list(APPEND NATIVE_LIBS
+                System.Security.Cryptography.Native.Android-Static
+            )
+        endif()
     endif()
 
     list(APPEND NATIVE_LIBS
@@ -204,7 +211,7 @@ else()
     include(${CLR_SRC_NATIVE_DIR}/libs/System.IO.Compression.Native/extra_libs.cmake)
     append_extra_compression_libs(NATIVE_LIBS)
 
-    if (NOT CLR_CMAKE_TARGET_TVOS AND NOT CLR_CMAKE_TARGET_ANDROID) # no gssapi on tvOS, see https://developer.apple.com/documentation/gss
+    if (NOT CLR_CMAKE_TARGET_TVOS AND NOT CLR_CMAKE_TARGET_ANDROID AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32) # no gssapi on tvOS, see https://developer.apple.com/documentation/gss
         # Additional requirements for System.Net.Security.Native
         include(${CLR_SRC_NATIVE_DIR}/libs/System.Net.Security.Native/extra_libs.cmake)
         append_extra_security_libs(NATIVE_LIBS)
@@ -214,7 +221,7 @@ else()
     include(${CLR_SRC_NATIVE_DIR}/libs/System.Native/extra_libs.cmake)
     append_extra_system_libs(NATIVE_LIBS)
 
-    if(NOT CLR_CMAKE_TARGET_MACCATALYST AND NOT CLR_CMAKE_TARGET_IOS AND NOT CLR_CMAKE_TARGET_TVOS AND NOT CLR_CMAKE_TARGET_ANDROID)
+    if(NOT CLR_CMAKE_TARGET_MACCATALYST AND NOT CLR_CMAKE_TARGET_IOS AND NOT CLR_CMAKE_TARGET_TVOS AND NOT CLR_CMAKE_TARGET_ANDROID AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
         # Additional requirements for System.Security.Cryptography.Native.OpenSsl
         include(${CLR_SRC_NATIVE_DIR}/libs/System.Security.Cryptography.Native/extra_libs.cmake)
         append_extra_cryptography_libs(NATIVE_LIBS)
@@ -284,7 +291,7 @@ if(CLR_CMAKE_TARGET_LINUX OR CLR_CMAKE_TARGET_FREEBSD OR CLR_CMAKE_TARGET_NETBSD
     set(END_WHOLE_ARCHIVE -Wl,--no-whole-archive)
 endif(CLR_CMAKE_TARGET_LINUX OR CLR_CMAKE_TARGET_FREEBSD OR CLR_CMAKE_TARGET_NETBSD OR CLR_CMAKE_TARGET_SUNOS)
 
-if(CLR_CMAKE_TARGET_LINUX AND CLR_CMAKE_TARGET_ARCH_RISCV64)
+if(CLR_CMAKE_TARGET_LINUX AND CLR_CMAKE_TARGET_ARCH_RISCV64 AND NOT CLR_CMAKE_TARGET_ARCH_RISCV32)
     add_linker_flag(-Wl,-z,notext)
 endif()
 

@@ -46,6 +46,9 @@ namespace System.Runtime.InteropServices
             => Architecture.Ppc64le
 #elif TARGET_RISCV64
             => Architecture.RiscV64
+#elif TARGET_RISCV32
+            /* FIXME: WRONG */
+            => (Architecture) (int) (Architecture.RiscV64 + 1)
 #else
 #error Unknown Architecture
 #endif
