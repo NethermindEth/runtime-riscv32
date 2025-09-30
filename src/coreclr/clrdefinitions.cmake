@@ -273,6 +273,8 @@ function(set_target_definitions_to_custom_os_and_arch)
     target_compile_definitions(${TARGETDETAILS_TARGET} PRIVATE TARGET_64BIT)
     target_compile_definitions(${TARGETDETAILS_TARGET} PRIVATE TARGET_RISCV64)
     target_compile_definitions(${TARGETDETAILS_TARGET} PRIVATE FEATURE_MULTIREG_RETURN)
+  else()
+    message(FATAL_ERROR "Unknown target arch")
   endif()
 
   if (TARGETDETAILS_ARCH STREQUAL "armel")
