@@ -113,7 +113,7 @@
   <Target Name="UpdateLocalTargetingAndRuntimePack"
           Condition="'$(UseLocalTargetingRuntimePack)' == 'true'"
           AfterTargets="ResolveFrameworkReferences">
-    <Error Text="The shared framework must be built before the local targeting pack can be consumed."
+    <Error Text="The shared framework must be built before the local targeting pack can be consumed: $(MicrosoftNetCoreAppRefPackDir)."
            Condition="!Exists('$(MicrosoftNetCoreAppRefPackDir)data\FrameworkList.xml')" />
 
     <ItemGroup>
